@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<h:head></h:head> 
+<body> 	
+	
+	<p:commandLink onclick="painelListarUsuario.close(); painelIncluirUsuario.show();">
+        <h:outputText value="Incluir Usuário" />
+    </p:commandLink>
+	<p:dataTable value="#{usuarioBean.usuarios}" var="usu" emptyMessage="" id="tableUsu" paginator="true" rows="7" 
+	paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+    rowsPerPageTemplate="7,14,21">
+		
+			<p:column>
+				<f:facet name="header"><h:outputText value="Nome" /></f:facet>
+				<h:outputText value="#{usu.nome}" />
+			</p:column>
+			<p:column>          
+				<f:facet name="header"><h:outputText value="Senha" /></f:facet>
+				<h:outputText value="#{usu.senha}" />
+			</p:column>
+			<p:column>				
+				<p:commandButton value="Consultar" action="#{usuarioBean.obterUsuario}">
+					<f:setPropertyActionListener target="#{usuarioBean.usuario}" value="#{usu}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>	
+			<p:column>				
+				<p:commandButton value="Alterar" action="#{usuarioBean.obterUsuario}" onclick="painelListar.close(); painelAlterar.show();" update=":gridAlterar">
+					<f:setPropertyActionListener target="#{usuarioBean.usuario}" value="#{usu}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>
+			<p:column>
+			<h:inputHidden value="#{usu.nome}" />				
+				<p:commandButton value="Excluir" action="#{usuarioBean.obterUsuario}" onclick="confirmation_excluir.show()" >
+					<f:setPropertyActionListener target="#{usuarioBean.usuario}" value="#{usu}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>				
+	</p:dataTable>
+</body> 
+</html>
