@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head></h:head>
+<body>
+	<h:panelGroup id="panelGroupUsuario" layout="block">
+		<!-- Listar Usuario -->
+		<p:panel id="painelListarUsuario" widgetVar="painelListarUsuario"
+			visible="true" closable="true" closeSpeed="0" style="border: none">
+			<h:form id="formListarUsuario">
+				<p:commandLink action="#{usuarioBean.limparUsuario}"
+					update=":formIncluirUsuario"
+					oncomplete="PF('painelListarUsuario').close(); PF('painelIncluirUsuario').show();">
+					<h:outputText value="Incluir Usuário" />
+				</p:commandLink>
+				<p:dataTable style="width: 50%;" value="#{usuarioBean.usuarios}"
+					var="usu" emptyMessage="" id="tableUsu" paginator="true" rows="7"
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					rowsPerPageTemplate="7,14,21">
+
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="Nome" />
+						</f:facet>
+						<h:outputText value="#{usu.nome}" />
+					</p:column>
+					<p:column>
+						<p:commandButton value="Consultar" update=":formConsultarUsuario"
+							oncomplete="PF('painelConsultarUsuario').show(); PF('painelListarUsuario').close();">
+							<f:setPropertyActionListener target="#{usuarioBean.usuario}"
+								value="#{usu}"></f:setPropertyActionListener>
+						</p:commandButton>
+					</p:column>
+					<p:column>
+						<p:commandButton value="Alterar" update=":formAlterarUsuario"
+							onclick="PF('painelAlterarUsuario').show(); PF('painelListarUsuario').close();">
+							<f:setPropertyActionListener target="#{usuarioBean.usuario}"
+								value="#{usu}"></f:setPropertyActionListener>
+						</p:commandButton>
+					</p:column>
+					<p:column>
+						<p:commandButton value="Excluir"
+							action="#{usuarioBean.excluirUsuario}"
+							update=":formListarUsuario">
+							<f:setPropertyActionListener target="#{usuarioBean.usuario}"
+								value="#{usu}"></f:setPropertyActionListener>
+							<p:confirm header=""
+								message="Tem certeza que deseja efetuar esta exclusão ?"
+								icon="ui-icon-alert" />
+						</p:commandButton>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</p:panel>
+
+		<!-- Incluir Usuario -->
+		<p:panel id="painelIncluirUsuario" widgetVar="painelIncluirUsuario"
+			visible="false" closable="true" closeSpeed="0" style="border: none">
+			<h:form id="formIncluirUsuario">
+				<p:panel style="width: 50%;">
+					<table>
+						<tr>
+							<td><h:outputLabel value="Nome:" /></td>
+							<td><p:inputText id="nomeUsuario"
+									value="#{usuarioBean.usuario.nome}" label="Nome" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel value="Login:" /></td>
+							<td><p:inputText id="loginUsuario"
+									value="#{usuarioBean.usuario.login}" label="Login" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel value="Senha: " /></td>
+							<td><p:password id="senhaUsuario"
+									value="#{usuarioBean.usuario.senha}" label="Senha" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel id="permissaoUsuario" value="Permissão: " />
+							</td>
+							<td><h:selectOneMenu id="comboPermissaoUsuario"
+									value="#{usuarioBean.usuario.permissao}">
+									<f:selectItem itemLabel="Selecione" itemValue="" />
+									<f:selectItem itemLabel="Atendente" itemValue="Atendente" />
+									<f:selectItem itemLabel="Gerente" itemValue="Gerente" />
+								</h:selectOneMenu></td>
+						</tr>
+					</table>
+				</p:panel>
+				<div class="posicao_botao" align="right">
+					<p:commandButton value="Voltar"
+						onclick="PF('painelIncluirUsuario').close(); PF('painelListarUsuario').show();"
+						type="button" />
+					<p:commandButton value="Enviar"
+						action="#{usuarioBean.incluirUsuario}" styleClass="botao"
+						update=":formListarUsuario"
+						oncomplete="PF('painelIncluirUsuario').close(); PF('painelListarUsuario').show();" />
+				</div>
+			</h:form>
+		</p:panel>
+
+		<!-- Consultar Usuario -->
+		<p:panel id="painelConsultarUsuario"
+			widgetVar="painelConsultarUsuario" visible="false" closable="true"
+			closeSpeed="0" style="border: none">
+			<h:form id="formConsultarUsuario">
+				<p:panel style="width: 50%;">
+					<h2>
+						<h:outputText value="#{usuarioBean.usuario.nome}" />
+					</h2>
+					<table border="1" class="tableConsulta" cellpadding="10">
+						<tr>
+							<td><h:outputText value="Login:" /></td>
+							<td><h:outputText value="#{usuarioBean.usuario.login}" /></td>
+						</tr>
+						<tr>
+							<td><h:outputText value="Permissão:" /></td>
+							<td><h:outputText value="#{usuarioBean.usuario.permissao}" />
+							</td>
+						</tr>
+					</table>
+
+				</p:panel>
+				<div class="posicao_botao" align="right">
+					<p:commandButton value="Voltar"
+						onclick="PF('painelConsultarUsuario').close(); PF('painelListarUsuario').show();"
+						type="button" />
+					<p:commandButton value="Alterar" update=":formAlterarUsuario"
+						oncomplete="PF('painelConsultarUsuario').close(); PF('painelAlterarUsuario').show();"
+						styleClass="botao" />
+				</div>
+			</h:form>
+
+		</p:panel>
+
+		<!-- Alterar Usuario -->
+		<p:panel id="painelAlterarUsuario" widgetVar="painelAlterarUsuario"
+			visible="false" closable="true" closeSpeed="0" style="border: none">
+			<h:form id="formAlterarUsuario">
+				<p:panel style="width: 50%;">
+					<table>
+						<tr>
+							<td><h:outputLabel value="Nome:" /></td>
+							<td><p:inputText id="nomeUsuario"
+									value="#{usuarioBean.usuario.nome}" label="Nome" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel value="Login:" /></td>
+							<td><p:inputText id="loginUsuario"
+									value="#{usuarioBean.usuario.login}" label="Login" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel value="Senha: " /></td>
+							<td><p:password id="senhaUsuario"
+									value="#{usuarioBean.usuario.senha}" label="Senha" /></td>
+						</tr>
+						<tr>
+							<td><h:outputLabel id="permissaoUsuario" value="Permissão: " />
+							</td>
+							<td><h:selectOneMenu id="comboPermissaoUsuario"
+									value="#{usuarioBean.usuario.permissao}">
+									<f:selectItem itemLabel="Selecione" itemValue="" />
+									<f:selectItem itemLabel="Atendente" itemValue="Atendente" />
+									<f:selectItem itemLabel="Gerente" itemValue="Gerente" />
+								</h:selectOneMenu></td>
+						</tr>
+					</table>
+				</p:panel>
+				<div class="posicao_botao" align="right">
+					<p:commandButton value="Voltar"
+						onclick="PF('painelAlterarUsuario').close(); PF('painelListarUsuario').show();"
+						type="button" />
+					<p:commandButton value="Enviar"
+						action="#{usuarioBean.atualizarUsuario}" styleClass="botao"
+						oncomplete="PF('painelAlterarUsuario').close(); PF('painelListarUsuario').show();"
+						update=":formListarUsuario" />
+				</div>
+			</h:form>
+		</p:panel>
+	</h:panelGroup>
+</body>
+</html>
