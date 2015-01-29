@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<h:head></h:head> 
+<body> 
+<h:form id="form_1" prependId="false" >
+	<p:panelGrid columns="2" >
+		
+		<f:facet name="header">
+			<h:outputLabel value="Cadastro Usuário " />
+		</f:facet>
+		
+		<h:outputLabel value="Nome: " />  
+   		<p:inputText id="nomeUsuario" value="#{usuarioBean.usuario.nome}" label="Nome"/>
+   		
+   		<h:outputLabel value="Login: " />  
+   		<p:inputText id="loginUsuario" value="#{usuarioBean.usuario.login}" label="Login" />
+   		
+   		<h:outputLabel value="Senha: " />  
+   		<p:inputText id="senhaUsuario" value="#{usuarioBean.usuario.senha}" label="Senha" />
+   		<p:inputText id="permissaoHiden" value="#{usuarioBean.usuario.permissao}" label="Permissao" />
+   		<h:outputLabel id="permissaoUsuario" value="Permissão: " />  
+   		<h:selectOneMenu id="comboPermissaoUsuario" onchange="setarCombo('comboPermissaoUsuario','permissaoHiden')">
+   			<f:selectItem itemLabel="Atendente" itemValue="Atendente"/>
+   			<f:selectItem itemLabel="Gerente" itemValue="Gerente"/>
+   		</h:selectOneMenu>
+		
+		<f:facet name="footer">  
+	        <p:commandButton value="Enviar" action="#{usuarioBean.incluirUsuario}" actionListener="#{usuarioBean.attrListener}" style="position:center" />  
+	    </f:facet> 
+		
+	</p:panelGrid>
+	<p:commandButton  value="Voltar" onclick="painelIncluirUsuario.close(); painelListarUsuario.show();" type="button" />
+		
+	</h:form>
+</body> 
+</html>
