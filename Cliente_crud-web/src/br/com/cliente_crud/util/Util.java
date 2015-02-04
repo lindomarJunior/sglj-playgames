@@ -26,8 +26,10 @@ public class Util implements Converter {
 			Long numero = resultSegundos.longValue();
 
 			return numero;
+		}else{
+			Long numero = new Long(0);
+			return numero;
 		}
-		return objeto;
 	}
 
 	@Override

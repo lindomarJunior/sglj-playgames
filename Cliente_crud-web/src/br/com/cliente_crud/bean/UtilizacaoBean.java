@@ -1,5 +1,6 @@
 package br.com.cliente_crud.bean;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,10 +28,11 @@ import br.com.cliente_crud.service.PlataformaService;
 import br.com.cliente_crud.service.UsuarioService;
 import br.com.cliente_crud.service.UtilizacaoService;
 import br.com.cliente_crud.service.VideogameService;
+import br.com.cliente_crud.util.UtilData;
 
 @ManagedBean(name = "utilizacaoBean")
 @ViewScoped
-public class UtilizacaoBean {
+public class UtilizacaoBean implements Serializable {
 	@EJB
 	private ClienteService clienteService;
 	@EJB
@@ -57,6 +59,7 @@ public class UtilizacaoBean {
 	private Plataforma plataforma;
 	@Inject
 	private Jogo jogo;
+	private Jogo jogoAtual;
 	@Inject
 	private Videogame videogame;
 	private List<Utilizacao> ListaUtilizacaoEspera;
@@ -66,6 +69,7 @@ public class UtilizacaoBean {
 	private List<Videogame> listaVideogameDisponiveis;
 	private final Integer ativado = 1;
 	private final Integer desativado = 0;
+	private Long tempoAdicional;
 
 	// ///////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +95,14 @@ public class UtilizacaoBean {
 	 * @throws SQLException
 	 */
 	public void continuarInclusao() throws SQLException {
+		//incluindo jogo
+		setJogo(findJogo(getJogo().getId(), getListaJogo()));
+		getJogo().setDisponibilidade(0);
+		jogoService.atualizar(getJogo());
+		setListaJogo(new ArrayList<Jogo>());
+		getListaJogo().add(getJogo());
 		getUtilizacao().setJogos(getListaJogo());
+		
 		getUtilizacao().setStatusEspera(ativado);
 		utilizacaoService.incluir(getUtilizacao());
 		listarUtilizacaoEspera();
@@ -99,11 +110,12 @@ public class UtilizacaoBean {
 
 	/**
 	 * Método resposável por dar início as utilizações em espera
-	 * @throws SQLException 
+	 * 
+	 * @throws SQLException
 	 */
 	public void iniciarUtilizacao() throws SQLException {
-		
-		//inseri videogame na utilização
+
+		// inseri videogame na utilização
 		for (Videogame videogame : getListaVideogameDisponiveis()) {
 			if (videogame
 					.getPlataforma()
@@ -112,15 +124,13 @@ public class UtilizacaoBean {
 							.getId())) {
 				videogame.setDisponibilidade(0);
 				videogameService.atualizar(videogame);
-				getUtilizacao().setVideogame(videogame);					
+				getUtilizacao().setVideogame(videogame);
 				break;
 			}
 		}
-		
-		Calendar horaInicio = new GregorianCalendar();
-		Date date = new Date();
-		horaInicio.setTime(date);
-		
+
+		Calendar horaInicio = Calendar.getInstance();
+
 		getUtilizacao().setHoraInicio(horaInicio);
 		getUtilizacao().setStatusEspera(desativado);
 		getUtilizacao().setStatusAtivo(ativado);
@@ -131,19 +141,169 @@ public class UtilizacaoBean {
 	}
 
 	/**
+	 * 
+	 */
+	public void cancelarUtilizacao() {
+		utilizacaoService.excluir(getUtilizacao());
+	}
+	
+	/**
+	 * 
+	 */
+	public void visualizarUtilizacao(){
+		getUtilizacao().setQtdTempoUtilizado(
+				calcularTempoUtilizado(getUtilizacao()));
+		
+		setListaJogo(utilizacaoService
+				.consultarJogoPorPlataforma(getUtilizacao().getVideogame()
+						.getPlataforma().getId()));
+		
+		for (Jogo jogo : getUtilizacao().getJogos()) {
+			if(jogo.getDisponibilidade().equals(0)){
+				jogoAtual = jogo;
+				break;
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void pausarUtilizacao() {
+		
+		getUtilizacao().setQtdTempoUtilizado(
+				calcularTempoUtilizado(getUtilizacao()));
+		
+		setListaJogo(utilizacaoService
+				.consultarJogoPorPlataforma(getUtilizacao().getVideogame()
+						.getPlataforma().getId()));
+		
+		for (Jogo jogo : getUtilizacao().getJogos()) {
+			if(jogo.getDisponibilidade().equals(0)){
+				jogoAtual = jogo;
+				break;
+			}
+		}
+
+		getListaJogo().remove(findJogo(jogoAtual.getId(), getListaJogo()));
+	}
+	
+	/**
+	 * @throws SQLException 
+	 * 
+	 */
+	public void alterarPausa() throws SQLException{
+		
+		//Troca de jogo		
+		if(!getJogoAtual().getId().equals(getJogo().getId())){
+			setJogo(findJogo(getJogo().getId(), getListaJogo()));
+			getJogo().setDisponibilidade(0);		
+			jogoAtual.setDisponibilidade(1);
+			
+			jogoService.atualizar(getJogo());
+			jogoService.atualizar(jogoAtual);
+			getUtilizacao().getJogos().add(getJogo());		
+			utilizacaoService.atualizar(getUtilizacao());
+		}
+		
+		
+		//Adicionando mais tempo
+		if(!getTempoAdicional().equals(new Long(0))){
+			getUtilizacao().setQtdTempoSolicitado(getUtilizacao().getQtdTempoSolicitado() + getTempoAdicional());
+			setTempoAdicional(null);
+			utilizacaoService.atualizar(getUtilizacao());
+		}
+		
+	}
+	/**
+	 * Método utilizado para quando terminar o tempo da utilização
+	 */
+	public void terminarUtilizacao(Utilizacao utilizacao) {
+		setUtilizacao(utilizacaoService.consultar(
+				(Class<Utilizacao>) utilizacao.getClass(), utilizacao.getId()));
+		getUtilizacao().setQtdTempoUtilizado(
+				calcularTempoUtilizado(getUtilizacao()));
+	}
+
+	/**
+	 * @throws SQLException
+	 */
+	public void ecerrarUtilizacao() throws SQLException {
+
+		Calendar horaTermino = Calendar.getInstance();
+
+		getUtilizacao().getVideogame().setDisponibilidade(1);
+		videogameService.atualizar(getUtilizacao().getVideogame());
+
+		getUtilizacao().setQtdTempoUtilizado(
+				calcularTempoUtilizado(getUtilizacao()));
+		getUtilizacao().setHoraTermino(horaTermino);
+		getUtilizacao().setStatusAtivo(desativado);
+		utilizacaoService.atualizar(getUtilizacao());
+	}
+
+	/**
 	 * Método responsável por listar utilização
 	 */
 	public void listarUtilizacaoEspera() {
 		setListaUtilizacaoEspera(utilizacaoService
 				.listarUtilizacaoEspera(ativado));
 	}
-	
+
 	/**
 	 * Método responsável por listar utilização
 	 */
 	public void listarUtilizacaoAndamento() {
 		setListaUtilizacaoAndamento(utilizacaoService
 				.listarUtilizacaoAndamento(ativado));
+
+		// cacula tempo que falta apartir do banco de dados
+		for (Utilizacao utilizacao : getListaUtilizacaoAndamento()) {
+			utilizacao.setQtdTempoSolicitado(calcularTempoRestante(utilizacao));
+		}
+	}
+
+	/**
+	 * @param utilizacao
+	 * @return
+	 */
+	private Long calcularTempoRestante(Utilizacao utilizacao) {
+		Calendar tempoAtual = Calendar.getInstance();
+		Calendar tempoFinal = (Calendar) utilizacao.getHoraInicio().clone();
+		Integer tempoSolicitado = Integer.valueOf(utilizacao
+				.getQtdTempoSolicitado().toString());
+		tempoFinal.add(Calendar.SECOND, tempoSolicitado);
+		Long tempoRestante = (long) UtilData.diferencaEmSegundos(
+				tempoAtual.getTime(), tempoFinal.getTime());
+
+		return tempoRestante;
+	}
+
+	/**
+	 * @param utilizacao
+	 * @return
+	 */
+	private Long calcularTempoUtilizado(Utilizacao utilizacao) {
+		Long tempoSolicitado = utilizacao.getQtdTempoSolicitado();
+		Long tempoRestante = calcularTempoRestante(utilizacao);
+
+		if (tempoRestante < 0) {
+			return tempoSolicitado;
+		} else if (tempoRestante == 0) {
+			return tempoRestante;
+		}
+
+		Long tempoUtilizado = tempoSolicitado - tempoRestante;
+		return tempoUtilizado;
+	}
+	
+	private Jogo findJogo(Integer idJogo, List<Jogo> listaJogo){
+		for (Jogo jogo : listaJogo) {
+			if(jogo.getId().equals(idJogo)){
+				return jogo;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -223,6 +383,14 @@ public class UtilizacaoBean {
 		return plataforma;
 	}
 
+	public Long getTempoAdicional() {
+		return tempoAdicional;
+	}
+
+	public void setTempoAdicional(Long tempoAdicional) {
+		this.tempoAdicional = tempoAdicional;
+	}
+
 	public void setPlataforma(Plataforma plataforma) {
 		this.plataforma = plataforma;
 	}
@@ -267,5 +435,13 @@ public class UtilizacaoBean {
 	public void setListaVideogameDisponiveis(
 			List<Videogame> listaVideogameDisponiveis) {
 		this.listaVideogameDisponiveis = listaVideogameDisponiveis;
+	}
+
+	public Jogo getJogoAtual() {
+		return jogoAtual;
+	}
+
+	public void setJogoAtual(Jogo jogoAtual) {
+		this.jogoAtual = jogoAtual;
 	}
 }

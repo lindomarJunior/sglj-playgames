@@ -56,5 +56,23 @@ public class UtilData {
         result = diferencaEmMinutos + (segundosRestantes /60d); //transforma os segundos restantes em minutos  
       
         return result;  
-    } 
+    }
+    
+    /** 
+     * Calcula a diferença de duas datas em minutos 
+     * <br> 
+     * <b>Importante:</b> Quando realiza a diferença em minutos entre duas datas, este método considera os segundos restantes e os converte em fração de minutos. 
+     * @param dataInicial 
+     * @param dataFinal 
+     * @return quantidade de minutos existentes entre a dataInicial e dataFinal. 
+     */  
+    public static double diferencaEmSegundos(Date dataInicial, Date dataFinal){  
+        double result = 0;  
+        long diferenca = dataFinal.getTime() - dataInicial.getTime();  
+        double diferencaEmMinutos = (diferenca /1000) / 60; //resultado é diferença entre as datas em minutos  
+        long segundosRestantes = (diferenca / 1000)%60; //calcula os segundos restantes  
+        result = diferencaEmMinutos + (segundosRestantes /60d); //transforma os segundos restantes em minutos  
+        result = result * 60;
+        return result;  
+    }
 }
