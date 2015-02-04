@@ -92,12 +92,9 @@
 		position="bottom">
 		<ui:include src="/Videogame/Videogame.xhtml"></ui:include>
 	</p:dialog>
-
-	<h:form id="form_3">
-		<p:growl id="messages" />
-
-
-
+	
+	<h:form id="form_incluirUtilizacao">
+		<!-- tela incluir utilização -->
 		<p:dialog id="dialogIncluirUtilizacao"
 			widgetVar="dialogIncluirUtilizacao" modal="true">
 			<table border="0">
@@ -127,7 +124,7 @@
 				<tr>
 					<td><b>Jogo:</b></td>
 					<td><p:selectOneMenu id="comboJogo" widgetVar="comboJogo"
-							value="#{jogoBean.plataforma.id}">
+							value="#{utilizacaoBean.jogo.id}">
 							<f:selectItem itemLabel="Selecione" itemValue="" />
 							<f:selectItems value="#{utilizacaoBean.listaJogo}" var="jogo"
 								itemLabel="#{jogo.titulo}" itemValue="#{jogo.id}" />
@@ -156,23 +153,240 @@
 							</table>
 						</p:panel><br /> <p:commandButton value="Cancelar" /> <p:commandButton
 							value="Continuar" action="#{utilizacaoBean.continuarInclusao}"
-							update="dialogIncluirUtilizacao, dataListEspera" /></td>
+							update="dialogIncluirUtilizacao, :form_3:dataListEspera" /></td>
 				</tr>
 			</table>
 		</p:dialog>
+	</h:form>
+	
+	<h:form id="form_visu_util_espera">
+		<!-- tela visualizar utilização espera -->
+		<p:dialog id="dialogVisualizarUtilizacaoEspera"
+			widgetVar="dialogVisualizarUtilizacaoEspera" modal="true">
+			<table border="0">
+				<tr>
+					<td><b>Nome:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Login:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.login}" />
+					</td>
+				</tr>
+			</table>
+			<hr />
+			<table border="0">
+				<tr>
+					<td><b>Plataforma:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.jogos.get(0).plataforma.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Jogo:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.jogos.get(0).titulo}" /></td>
+				</tr>
+			</table>
+			<br />
 
+			<table border="0">
+				<tr>
+					<td><p:panel>
+							<table border="0">
+								<tr>
+									<td><b>Tempo:</b></td>
+									<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" converter="segundosToHorasConverter" /></td>
+								</tr>
+								<tr>
+									<td><b>Valor: R$</b></td>
+									<td></td>
+								</tr>
+							</table>
+						</p:panel><br /> <p:commandButton value="Cancelar" update="dialogVisualizarUtilizacaoEspera" /></td>
+				</tr>
+			</table>
+		</p:dialog>
+	</h:form>
+	
+	<h:form id="form_visualizar_util">
+		<!-- tela pausar utilização -->
+		<p:dialog id="dialogVisuUtilizacao"
+			widgetVar="dialogVisuUtilizacao" modal="true">
+			<table border="0">
+				<tr>
+					<td><b>Nome:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Login:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.login}" />
+					</td>
+				</tr>
+			</table>
+			<hr />
+			<table border="0">
+				<tr>
+					<td><b>Plataforma:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.videogame.plataforma.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Jogo:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.jogoAtual.titulo}" /></td>
+				</tr>
+			</table>
+			<hr />
+			<table>	
+				<tr>
+					<td><b>Tempo Solicitado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" converter="segundosToHorasConverter" /></td>
+				</tr>
+				<tr>
+					<td><b>Tempo Utilizado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoUtilizado}" converter="segundosToHorasConverter" /></td>
+				</tr>				
+			</table>
+			<br />
 
+			<table border="0">
+				<tr>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td><br /> <p:commandButton value="Fechar" update=":form_visualizar_util:dialogVisuUtilizacao" /> </td>
+				</tr>
+			</table>
+		</p:dialog>
+	</h:form>
+	
+	<h:form id="form_pausar_util">
+		<!-- tela pausar utilização -->
+		<p:dialog id="dialogPausarUtilizacao"
+			widgetVar="dialogPausarUtilizacao" modal="true">
+			<table border="0">
+				<tr>
+					<td><b>Nome:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Login:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.login}" />
+					</td>
+				</tr>
+			</table>
+			<hr />
+			<table border="0">
+				<tr>
+					<td><b>Plataforma:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.videogame.plataforma.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Jogo:</b></td>
+					<td><p:selectOneMenu widgetVar="comboJogo"
+							value="#{utilizacaoBean.jogo.id}">
+							<f:selectItem itemLabel="#{utilizacaoBean.jogoAtual.titulo}" 
+							itemValue="#{utilizacaoBean.jogoAtual.id}" />
+							<f:selectItems value="#{utilizacaoBean.listaJogo}" var="jogo"
+								itemLabel="#{jogo.titulo}" itemValue="#{jogo.id}" />
+						</p:selectOneMenu></td>
+				</tr>
+			</table>
+			<hr />
+			<table>	
+				<tr>
+					<td><b>Tempo Solicitado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" converter="segundosToHorasConverter" /></td>
+				</tr>
+				<tr>
+					<td><b>Tempo Utilizado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoUtilizado}" converter="segundosToHorasConverter" /></td>
+				</tr>				
+			</table>
+			<br />
 
-
-
-
-
-
-
-
-
-
-
+			<table border="0">
+				<tr>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td><fieldset>
+						<legend>Adicionar tempo</legend>
+							<table border="0">
+								<tr>
+									<td><b>Tempo:</b></td>
+									<td>
+											<p:inputMask value="#{utilizacaoBean.tempoAdicional}" converterMessage="tempoConverter"
+											mask="99:99" converter="tempoConverter" style="width:50px;"/>
+											</td>
+								</tr>
+								<tr>
+									<td><b>Valor: R$</b></td>
+									<td><p:inputText style="width:50px;" /></td>
+								</tr>
+							</table>
+						</fieldset>
+						<br /> 
+						<p:commandButton value="Encerrar" action="#{utilizacaoBean.ecerrarUtilizacao}" 
+						update=":form_3:dataTableUtilizacao, :form_3:dataTableVideogame, :form_pausar_util:dialogPausarUtilizacao"/> 
+						<p:commandButton
+							value="Continuar" action="#{utilizacaoBean.alterarPausa}" oncomplete="PF('timer#{utilizacaoBean.utilizacao.id}').start()"
+							update=":form_pausar_util:dialogPausarUtilizacao, :form_incluirUtilizacao:dialogIncluirUtilizacao, :form_3:dataListEspera, :form_3:dataTableUtilizacao" /></td>
+				</tr>
+			</table>
+		</p:dialog>
+	</h:form>
+	
+	<h:form id="form_encerrar_util">
+		<!-- tela encerrar utilização -->
+		<p:dialog id="dialogEncerrarUtilizacao"
+			widgetVar="dialogEncerrarUtilizacao" modal="true">
+			<table border="0">
+				<tr>
+					<td><b>Nome:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Login:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.cliente.login}" />
+					</td>
+				</tr>
+			</table>
+			<br />
+			<hr />
+			<table border="0">
+				<tr>
+					<td><b>Plataforma:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.videogame.plataforma.nome}" /></td>
+				</tr>
+				<tr>
+					<td><b>Jogos Utilizados:</b></td>
+					<td>
+					</td>
+				</tr>
+				<tr>					
+					<td>
+						<p:dataList	value="#{utilizacaoBean.utilizacao.jogos}" var="jogo" type="definition">
+							#{jogo.titulo}					        
+					    </p:dataList>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><b>Tempo Solicitado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" converter="segundosToHorasConverter" /></td>
+				</tr>
+				<tr>
+					<td><b>Tempo Utilizado:</b></td>
+					<td><h:outputText value="#{utilizacaoBean.utilizacao.qtdTempoUtilizado}" converter="segundosToHorasConverter" /></td>
+				</tr>
+				<tr>
+					<td><b>Valor: R$</b></td>
+					<td></td>
+				</tr>
+			</table>
+			<p:commandButton value="Encerrar" action="#{utilizacaoBean.ecerrarUtilizacao}" 
+			update=":form_3:dataTableUtilizacao, :form_3:dataTableVideogame, dialogEncerrarUtilizacao"/>
+			<br />
+		</p:dialog>
+	</h:form>
+	
+	<h:form id="form_3">
+		<p:growl id="messages" />
 
 		<p:layout fullPage="true">
 
@@ -206,45 +420,7 @@
 			</p:layoutUnit>
 			<!--  -->
 
-			<p:layoutUnit position="west"  header="Utilizações" size="800">
-			<!-- <p:panelGrid style="margin-top:20px">
-					<f:facet name="header">
-						<p:row>
-							<p:column>Código</p:column>
-							<p:column>Videogame</p:column>
-							<p:column>Login</p:column>
-							<p:column>Tempo</p:column>
-							<p:column></p:column>
-							<p:column></p:column>
-						</p:row>
-
-					</f:facet>
-
-					<p:row>
-						<p:column style="font-weight: bold;">445</p:column>
-						<p:column style="font-weight: bold;">Playstation 4</p:column>
-						<p:column style="font-weight: bold;">Pedro</p:column>
-						<p:column style="font-weight: bold;">
-						
-							<pe:timer  
-						    widgetVar="timer"  
-						    timeout="10000"  
-						    format="HH:mm:ss" /> 
-						
-						</p:column>
-						<p:column style="font-weight: bold;">
-							<p:commandButton value="vizualizar" style="position:center" />
-						</p:column>
-						<p:column style="font-weight: bold;">
-							<p:commandButton value="Pausar" style="position:center" onclick="PF('timer').pause()" type="button" />
-						</p:column>
-					</p:row>
-				</p:panelGrid> -->
-
-				
-				
-				
-				
+	<p:layoutUnit position="west"  header="Utilizações" size="800">							
 		<p:dataTable id="dataTableUtilizacao" 
 			widgetVar="dataTableUtilizacao" 
 			value="#{utilizacaoBean.listaUtilizacaoAndamento}" 
@@ -272,13 +448,21 @@
 					<f:facet name="header">
 						<h:outputText value="Tempo" />
 					</f:facet>
-					<pe:timer widgetVar="timer" timeout="#{utilizacao.qtdTempoSolicitado}" format="HH:mm:ss" />
+					<pe:timer widgetVar="timer#{utilizacao.id}" timeout="#{utilizacao.qtdTempoSolicitado}" oncomplete="PF('dialogEncerrarUtilizacao').show();"
+					format="HH:mm:ss" listener="#{utilizacaoBean.terminarUtilizacao(utilizacao)}" update=":form_encerrar_util:dialogEncerrarUtilizacao" />
 				</p:column>
 				<p:column>
-					<p:commandButton value="vizualizar" style="position:center" />
+					<p:commandButton value="vizualizar" action="#{utilizacaoBean.visualizarUtilizacao}" 
+					oncomplete="PF('dialogVisuUtilizacao').show()" style="position:center"
+					update=":form_visualizar_util:dialogVisuUtilizacao">
+						<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}" value="#{utilizacao}"/>
+					</p:commandButton>
 				</p:column>
 				<p:column>
-					<p:commandButton value="Pausar" style="position:center" onclick="PF('timer').pause()" type="button" />
+					<p:commandButton value="Pausar" style="position:center" oncomplete="PF('dialogPausarUtilizacao').show(), PF('timer#{utilizacao.id}').pause()" 
+					 update=":form_pausar_util:dialogPausarUtilizacao" action="#{utilizacaoBean.pausarUtilizacao}">
+						<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}" value="#{utilizacao}"/>
+					</p:commandButton>
 				</p:column>
 			</p:dataTable>
 				
@@ -297,7 +481,7 @@
 					<div align="right">
 						<p:commandButton value="Enviar"
 							action="#{utilizacaoBean.incluirUtilizacao}"
-							update="dialogIncluirUtilizacao"
+							update=":form_incluirUtilizacao:dialogIncluirUtilizacao"
 							oncomplete="PF('dialogIncluirUtilizacao').show();" />
 					</div>
 				</p:panel>
@@ -316,8 +500,16 @@
 			        		<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}"
 							value="#{utilizacao}"/>
 			        	</p:commandButton>
-			        	<p:commandButton style="height:30px; font-size: 70%;"  value="Visualizar" />
-			        	<p:commandButton style=" height:30px; font-size: 70%;"  value="Cancelar" />
+			        	<p:commandButton style="height:30px; font-size: 70%;"  value="Visualizar" 
+			        	oncomplete="PF('dialogVisualizarUtilizacaoEspera').show();" update=":form_visu_util_espera:dialogVisualizarUtilizacaoEspera">
+			        		<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}"
+							value="#{utilizacao}"/>
+			        	</p:commandButton>
+			        	<p:commandButton style=" height:30px; font-size: 70%;"  value="Cancelar" 
+			        	action="#{utilizacaoBean.cancelarUtilizacao}" update=":form_3:dataListEspera">
+			        		<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}"
+							value="#{utilizacao}"/>
+			        	</p:commandButton>
 			        </p:panel>
 			    </p:dataList>
 
