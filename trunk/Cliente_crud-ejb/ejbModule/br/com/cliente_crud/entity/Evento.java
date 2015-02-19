@@ -14,7 +14,7 @@ public class Evento {
 	private Integer id;
 	
 	@Column(name="NOME_EVENTO")
-	private String Nome;
+	private String nome;
 	
 	@Column(name="DATA_INICIO_EVENTO")
 	private Calendar dataInicio;
@@ -35,11 +35,11 @@ public class Evento {
 	}
 
 	public String getNome() {
-		return Nome;
+		return nome;
 	}
 
 	public void setNome(String nome) {
-		Nome = nome;
+		this.nome = nome;
 	}
 
 	public Calendar getDataInicio() {

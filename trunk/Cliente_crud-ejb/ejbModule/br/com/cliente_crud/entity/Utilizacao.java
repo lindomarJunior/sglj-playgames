@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.IndexColumn;
+
 @Entity
 @Table(name = "utilizacao")
 public class Utilizacao {
@@ -37,6 +39,9 @@ public class Utilizacao {
 
 	@Column(name = "VALOR_UTILIZACAO_UTILIZACAO")
 	private Float valor;
+	
+	@Transient
+	private Long tempoRestante;
 
 	@ManyToOne
 	@JoinColumn(name = "ID_EVENTO", referencedColumnName = "ID_EVENTO")
@@ -53,6 +58,10 @@ public class Utilizacao {
 	@ManyToOne
 	@JoinColumn(name = "ID_USUARIO", referencedColumnName = "ID_USUARIO")
 	private Usuario usuario;
+	
+	@OneToMany(mappedBy="utilizacao", fetch=FetchType.EAGER)
+	@IndexColumn(name="ID_PAUSA")
+	private List<Pausa> pausas;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "UTILIZACAO_JOGO", joinColumns = { @JoinColumn(name = "ID_UTILIZACAO", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "ID_JOGO", nullable = false, updatable = true) })
@@ -169,5 +178,21 @@ public class Utilizacao {
 
 	public void setJogos(List<Jogo> jogos) {
 		this.jogos = jogos;
+	}
+
+	public Long getTempoRestante() {
+		return tempoRestante;
+	}
+
+	public void setTempoRestante(Long tempoRestante) {
+		this.tempoRestante = tempoRestante;
+	}
+
+	public List<Pausa> getPausas() {
+		return pausas;
+	}
+
+	public void setPausas(List<Pausa> pausas) {
+		this.pausas = pausas;
 	}
 }
