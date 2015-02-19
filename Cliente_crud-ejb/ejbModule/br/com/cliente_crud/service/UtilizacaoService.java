@@ -1,12 +1,16 @@
 package br.com.cliente_crud.service;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.ejb.Local;
 
+import br.com.cliente_crud.entity.Cliente;
 import br.com.cliente_crud.entity.Jogo;
 import br.com.cliente_crud.entity.Utilizacao;
+import br.com.cliente_crud.relatorio.RelatorioPerfilCliente;
+import br.com.cliente_crud.relatorio.RelatorioPerfilClientela;
 
 @Local
 public interface UtilizacaoService {
@@ -62,4 +66,42 @@ public interface UtilizacaoService {
 	 * @return
 	 */
 	public List<Utilizacao> listarUtilizacaoAndamento(Integer status);
+	
+	/**
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados();
+	
+	/**
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas();
+	
+	/**
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao();
+	
+	/**
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioFaturamento(Calendar dataInicio, Calendar dataFinal);
+		
+	/**
+	 * @param idCliente
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizadosPorCliente(Integer idCliente);
+	
+	/**
+	 * @param idCliente
+	 * @return
+	 */
+	public List<RelatorioPerfilClientela> gerarRelatorioUtilizacaoPorEvento(Integer idCliente);
+	
+	/**
+	 * @param idCliente
+	 * @return
+	 */
+	public List<RelatorioPerfilCliente> sugerirJogos(Cliente cliente);
 }

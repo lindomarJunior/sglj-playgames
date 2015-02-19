@@ -40,6 +40,9 @@ public class Cliente {
 	@Column(name="ESTADO_CLIENTE")
 	private String estado;
 	
+	@Column(name="DATA_REGISTRO")
+	private Calendar dataRegistro;
+	
 	@Column(name="OBSERVACAO")
 	private String observacao;
 	
@@ -122,6 +125,14 @@ public class Cliente {
 
 	public void setEstado(String estado) {
 		this.estado = estado;
+	}
+
+	public Calendar getDataRegistro() {
+		return dataRegistro;
+	}
+
+	public void setDataRegistro(Calendar dataRegistro) {
+		this.dataRegistro = dataRegistro;
 	}
 
 	public String getObservacao() {
