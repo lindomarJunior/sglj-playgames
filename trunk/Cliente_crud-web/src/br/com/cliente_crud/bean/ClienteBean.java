@@ -32,6 +32,8 @@ public class ClienteBean {
 	 * @throws SQLException
 	 */
 	public void incluirCliente() throws SQLException {
+		Calendar dataRegistro = Calendar.getInstance();
+		getCliente().setDataRegistro(dataRegistro);
 		clienteService.incluir(getCliente());
 		listarCliente();
 		limparCliente();

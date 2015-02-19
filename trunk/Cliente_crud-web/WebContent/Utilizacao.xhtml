@@ -42,6 +42,7 @@
 	overflow: visible !important;
 }
 </style>
+	  
 </h:head>
 <body bgcolor="#E8E8E8">
 	<!-- global confirm -->
@@ -448,7 +449,7 @@
 					<f:facet name="header">
 						<h:outputText value="Tempo" />
 					</f:facet>
-					<pe:timer widgetVar="timer#{utilizacao.id}" timeout="#{utilizacao.qtdTempoSolicitado}" oncomplete="PF('dialogEncerrarUtilizacao').show();"
+					<pe:timer widgetVar="timer#{utilizacao.id}" timeout="#{utilizacao.tempoRestante}" oncomplete="PF('dialogEncerrarUtilizacao').show();"
 					format="HH:mm:ss" listener="#{utilizacaoBean.terminarUtilizacao(utilizacao)}" update=":form_encerrar_util:dialogEncerrarUtilizacao" />
 				</p:column>
 				<p:column>
@@ -459,7 +460,7 @@
 					</p:commandButton>
 				</p:column>
 				<p:column>
-					<p:commandButton value="Pausar" style="position:center" oncomplete="PF('dialogPausarUtilizacao').show(), PF('timer#{utilizacao.id}').pause()" 
+					<p:commandButton value="Pausar" style="position:center" onclick="PF('timer#{utilizacao.id}').pause()" oncomplete="PF('dialogPausarUtilizacao').show()" 
 					 update=":form_pausar_util:dialogPausarUtilizacao" action="#{utilizacaoBean.pausarUtilizacao}">
 						<f:setPropertyActionListener target="#{utilizacaoBean.utilizacao}" value="#{utilizacao}"/>
 					</p:commandButton>
@@ -542,6 +543,5 @@
 
 
 	</h:form>
-
 </body>
 </html>

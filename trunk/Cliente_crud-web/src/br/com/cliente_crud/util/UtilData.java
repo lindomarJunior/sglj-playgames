@@ -75,4 +75,28 @@ public class UtilData {
         result = result * 60;
         return result;  
     }
+    
+    public static Long horasToSegundos(String horaCompleta){  
+    	Long resultSegundos = new Long(0);
+
+    	  //pego a posição onde esta os (dois pontos ':') e uso (-2) para ver o inicio da hora
+    	  int posicao = horaCompleta.indexOf(":") -2;
+
+    	  /*acho as posições exatas da hora, minuto e segundo e jogo em variaveis
+    	  não usei direto int aqui, porque o int corta o zero à esquera (exemplo 01 - fica 1)*/
+    	  String h = horaCompleta.substring(posicao, posicao +2 );
+    	  String m = horaCompleta.substring(posicao+3, posicao +5 );
+    	  String s = horaCompleta.substring(posicao+6, posicao +8 );
+
+    	  //faço calculos da hora em minutos depois em segundos.
+    	  int hora = Integer.parseInt(h) * 3600;
+    	  int minutos = Integer.parseInt(m) * 60;
+    	  int segundos = Integer.parseInt(s);
+
+    	  //somo tudo os resultados em segundos
+    	  resultSegundos = (long) (hora + minutos + segundos);
+
+    	  //retorno do resultado
+    	  return resultSegundos;
+    }
 }
