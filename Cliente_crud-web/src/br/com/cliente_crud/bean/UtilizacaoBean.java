@@ -2,11 +2,8 @@ package br.com.cliente_crud.bean;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -17,15 +14,19 @@ import javax.inject.Inject;
 import br.com.cliente_crud.entity.Cliente;
 import br.com.cliente_crud.entity.Evento;
 import br.com.cliente_crud.entity.Jogo;
+import br.com.cliente_crud.entity.Pausa;
 import br.com.cliente_crud.entity.Plataforma;
 import br.com.cliente_crud.entity.Usuario;
 import br.com.cliente_crud.entity.Utilizacao;
+import br.com.cliente_crud.entity.UtilizacaoJogo;
 import br.com.cliente_crud.entity.Videogame;
 import br.com.cliente_crud.service.ClienteService;
 import br.com.cliente_crud.service.EventoService;
 import br.com.cliente_crud.service.JogoService;
+import br.com.cliente_crud.service.PausaService;
 import br.com.cliente_crud.service.PlataformaService;
 import br.com.cliente_crud.service.UsuarioService;
+import br.com.cliente_crud.service.UtilizacaoJogoService;
 import br.com.cliente_crud.service.UtilizacaoService;
 import br.com.cliente_crud.service.VideogameService;
 import br.com.cliente_crud.util.UtilData;
@@ -47,6 +48,10 @@ public class UtilizacaoBean implements Serializable {
 	private JogoService jogoService;
 	@EJB
 	private VideogameService videogameService;
+	@EJB
+	private UtilizacaoJogoService utilizacaoJogoService;
+	@EJB
+	private PausaService pausaService;
 	@Inject
 	private Usuario usuario;
 	@Inject
@@ -59,9 +64,12 @@ public class UtilizacaoBean implements Serializable {
 	private Plataforma plataforma;
 	@Inject
 	private Jogo jogo;
-	private Jogo jogoAtual;
 	@Inject
 	private Videogame videogame;
+	@Inject
+	private UtilizacaoJogo utilizacaoJogo;
+	@Inject
+	private Pausa pausa;
 	private List<Utilizacao> ListaUtilizacaoEspera;
 	private List<Utilizacao> ListaUtilizacaoAndamento = new ArrayList<Utilizacao>();
 	private List<Plataforma> listaPlataforma;
@@ -69,7 +77,9 @@ public class UtilizacaoBean implements Serializable {
 	private List<Videogame> listaVideogameDisponiveis;
 	private final Integer ativado = 1;
 	private final Integer desativado = 0;
+	private Jogo jogoAtual;
 	private Long tempoAdicional;
+	private Long tempoRestante;
 
 	// ///////////////////////////////////////////////////////////////////////////
 
@@ -95,14 +105,14 @@ public class UtilizacaoBean implements Serializable {
 	 * @throws SQLException
 	 */
 	public void continuarInclusao() throws SQLException {
-		//incluindo jogo
+		// incluindo jogo
 		setJogo(findJogo(getJogo().getId(), getListaJogo()));
 		getJogo().setDisponibilidade(0);
 		jogoService.atualizar(getJogo());
 		setListaJogo(new ArrayList<Jogo>());
 		getListaJogo().add(getJogo());
 		getUtilizacao().setJogos(getListaJogo());
-		
+
 		getUtilizacao().setStatusEspera(ativado);
 		utilizacaoService.incluir(getUtilizacao());
 		listarUtilizacaoEspera();
@@ -136,6 +146,8 @@ public class UtilizacaoBean implements Serializable {
 		getUtilizacao().setStatusAtivo(ativado);
 		utilizacaoService.atualizar(getUtilizacao());
 		listarVideogameDisponivel();
+		getUtilizacao().setTempoRestante(
+				getUtilizacao().getQtdTempoSolicitado());
 		getListaUtilizacaoEspera().remove(getUtilizacao());
 		getListaUtilizacaoAndamento().add(getUtilizacao());
 	}
@@ -146,20 +158,20 @@ public class UtilizacaoBean implements Serializable {
 	public void cancelarUtilizacao() {
 		utilizacaoService.excluir(getUtilizacao());
 	}
-	
+
 	/**
 	 * 
 	 */
-	public void visualizarUtilizacao(){
+	public void visualizarUtilizacao() {
 		getUtilizacao().setQtdTempoUtilizado(
 				calcularTempoUtilizado(getUtilizacao()));
-		
+
 		setListaJogo(utilizacaoService
 				.consultarJogoPorPlataforma(getUtilizacao().getVideogame()
 						.getPlataforma().getId()));
-		
+
 		for (Jogo jogo : getUtilizacao().getJogos()) {
-			if(jogo.getDisponibilidade().equals(0)){
+			if (jogo.getDisponibilidade().equals(0)) {
 				jogoAtual = jogo;
 				break;
 			}
@@ -167,19 +179,30 @@ public class UtilizacaoBean implements Serializable {
 	}
 
 	/**
+	 * @throws SQLException
 	 * 
 	 */
-	public void pausarUtilizacao() {
-		
+	public void pausarUtilizacao() throws SQLException {
+
+		// gravando pausa
+		getPausa().setHoraPausa(Calendar.getInstance());
+		getPausa().setUtilizacao(
+				utilizacaoService.consultar(
+						(Class<Utilizacao>) utilizacao.getClass(),
+						utilizacao.getId()));
+		pausaService.atualizar(getPausa());
+
+		// calcula tempo utilizado
 		getUtilizacao().setQtdTempoUtilizado(
 				calcularTempoUtilizado(getUtilizacao()));
-		
+
+		// monta combo jogo
 		setListaJogo(utilizacaoService
 				.consultarJogoPorPlataforma(getUtilizacao().getVideogame()
 						.getPlataforma().getId()));
-		
+
 		for (Jogo jogo : getUtilizacao().getJogos()) {
-			if(jogo.getDisponibilidade().equals(0)){
+			if (jogo.getDisponibilidade().equals(0)) {
 				jogoAtual = jogo;
 				break;
 			}
@@ -187,40 +210,59 @@ public class UtilizacaoBean implements Serializable {
 
 		getListaJogo().remove(findJogo(jogoAtual.getId(), getListaJogo()));
 	}
-	
+
 	/**
-	 * @throws SQLException 
+	 * @throws SQLException
 	 * 
 	 */
-	public void alterarPausa() throws SQLException{
-		
-		//Troca de jogo		
-		if(!getJogoAtual().getId().equals(getJogo().getId())){
+	public void alterarPausa() throws SQLException {
+
+		// Troca de jogo
+		if (!getJogoAtual().getId().equals(getJogo().getId())) {
 			setJogo(findJogo(getJogo().getId(), getListaJogo()));
-			getJogo().setDisponibilidade(0);		
+			getJogo().setDisponibilidade(0);
 			jogoAtual.setDisponibilidade(1);
-			
+
+			utilizacaoJogo = utilizacaoJogoService.consultarUtilizacaoJogo(
+					jogoAtual.getId(), getUtilizacao().getId());
+			utilizacaoJogo
+					.setQtdTempoUtilizacao(calcularTempoUtilizado(getUtilizacao()));
+			utilizacaoJogoService.atualizar(utilizacaoJogo);
+
 			jogoService.atualizar(getJogo());
 			jogoService.atualizar(jogoAtual);
-			getUtilizacao().getJogos().add(getJogo());		
+			getUtilizacao().getJogos().add(getJogo());
 			utilizacaoService.atualizar(getUtilizacao());
 		}
-		
-		
-		//Adicionando mais tempo
-		if(!getTempoAdicional().equals(new Long(0))){
-			getUtilizacao().setQtdTempoSolicitado(getUtilizacao().getQtdTempoSolicitado() + getTempoAdicional());
+
+		// Adicionando mais tempo
+		if (!getTempoAdicional().equals(new Long(0))) {
+			getUtilizacao().setQtdTempoSolicitado(
+					getUtilizacao().getQtdTempoSolicitado()
+							+ getTempoAdicional());
 			setTempoAdicional(null);
 			utilizacaoService.atualizar(getUtilizacao());
 		}
-		
+
+		// atualiza tabela pausa
+		Utilizacao utilizacaoPausa = utilizacaoService.consultar(
+				(Class<Utilizacao>) utilizacao.getClass(), utilizacao.getId());
+
+		for (Pausa pausa : utilizacaoPausa.getPausas()) {
+			if (pausa != null && pausa.getHoraRetorno() == null) {
+				pausa.setHoraRetorno(Calendar.getInstance());
+				pausaService.atualizar(pausa);
+				break;
+			}
+		}
+
 	}
+
 	/**
 	 * Método utilizado para quando terminar o tempo da utilização
 	 */
 	public void terminarUtilizacao(Utilizacao utilizacao) {
-		setUtilizacao(utilizacaoService.consultar(
-				(Class<Utilizacao>) utilizacao.getClass(), utilizacao.getId()));
+		setUtilizacao(utilizacao);
 		getUtilizacao().setQtdTempoUtilizado(
 				calcularTempoUtilizado(getUtilizacao()));
 	}
@@ -259,7 +301,7 @@ public class UtilizacaoBean implements Serializable {
 
 		// cacula tempo que falta apartir do banco de dados
 		for (Utilizacao utilizacao : getListaUtilizacaoAndamento()) {
-			utilizacao.setQtdTempoSolicitado(calcularTempoRestante(utilizacao));
+			utilizacao.setTempoRestante(calcularTempoRestante(utilizacao));
 		}
 	}
 
@@ -269,14 +311,21 @@ public class UtilizacaoBean implements Serializable {
 	 */
 	private Long calcularTempoRestante(Utilizacao utilizacao) {
 		Calendar tempoAtual = Calendar.getInstance();
+		
 		Calendar tempoFinal = (Calendar) utilizacao.getHoraInicio().clone();
-		Integer tempoSolicitado = Integer.valueOf(utilizacao
-				.getQtdTempoSolicitado().toString());
+		
+		Integer tempoSolicitado = Integer.valueOf(utilizacao.getQtdTempoSolicitado().toString());
+		
 		tempoFinal.add(Calendar.SECOND, tempoSolicitado);
-		Long tempoRestante = (long) UtilData.diferencaEmSegundos(
-				tempoAtual.getTime(), tempoFinal.getTime());
-
-		return tempoRestante;
+		
+		Long tempoRestante = (long) UtilData.diferencaEmSegundos(tempoAtual.getTime(), tempoFinal.getTime());
+		
+		if(tempoRestante < 1){
+			return new Long(1);
+		}else{
+			return tempoRestante;
+		}
+			
 	}
 
 	/**
@@ -285,7 +334,7 @@ public class UtilizacaoBean implements Serializable {
 	 */
 	private Long calcularTempoUtilizado(Utilizacao utilizacao) {
 		Long tempoSolicitado = utilizacao.getQtdTempoSolicitado();
-		Long tempoRestante = calcularTempoRestante(utilizacao);
+		Long tempoRestante = utilizacao.getTempoRestante();
 
 		if (tempoRestante < 0) {
 			return tempoSolicitado;
@@ -296,10 +345,15 @@ public class UtilizacaoBean implements Serializable {
 		Long tempoUtilizado = tempoSolicitado - tempoRestante;
 		return tempoUtilizado;
 	}
-	
-	private Jogo findJogo(Integer idJogo, List<Jogo> listaJogo){
+
+	/**
+	 * @param idJogo
+	 * @param listaJogo
+	 * @return
+	 */
+	private Jogo findJogo(Integer idJogo, List<Jogo> listaJogo) {
 		for (Jogo jogo : listaJogo) {
-			if(jogo.getId().equals(idJogo)){
+			if (jogo.getId().equals(idJogo)) {
 				return jogo;
 			}
 		}
@@ -443,5 +497,21 @@ public class UtilizacaoBean implements Serializable {
 
 	public void setJogoAtual(Jogo jogoAtual) {
 		this.jogoAtual = jogoAtual;
+	}
+
+	public Long getTempoRestante() {
+		return tempoRestante;
+	}
+
+	public void setTempoRestante(Long tempoRestante) {
+		this.tempoRestante = tempoRestante;
+	}
+
+	public Pausa getPausa() {
+		return pausa;
+	}
+
+	public void setPausa(Pausa pausa) {
+		this.pausa = pausa;
 	}
 }
