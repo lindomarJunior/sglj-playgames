@@ -1,6 +1,7 @@
 package br.com.cliente_crud.dao;
 
 import br.com.cliente_crud.entity.Cliente;
+import br.com.cliente_crud.entity.Usuario;
 
 public interface ClienteDAO {
 
@@ -11,5 +12,12 @@ public interface ClienteDAO {
 	 * @param valor
 	 * @return
 	 */
-	public Cliente consultarCliente(Long cpf);
+	public Cliente consultarCliente(String cpf);
+	
+	/**
+	 * @param login
+	 * @param senha
+	 * @return
+	 */
+	public Usuario consultarUsuario(String login, String senha);
 }

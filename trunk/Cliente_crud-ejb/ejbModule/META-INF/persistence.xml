@@ -12,6 +12,7 @@
       <class>br.com.cliente_crud.entity.Utilizacao</class>
       <class>br.com.cliente_crud.entity.UtilizacaoJogo</class>
       <class>br.com.cliente_crud.entity.Pausa</class>
+      <class>br.com.cliente_crud.entity.Historico</class>
       
       <properties>
          <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>

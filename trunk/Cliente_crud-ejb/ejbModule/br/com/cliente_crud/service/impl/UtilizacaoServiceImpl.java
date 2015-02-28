@@ -80,21 +80,28 @@ public class UtilizacaoServiceImpl implements UtilizacaoService {
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados() {
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados(
+			Calendar dataInicial, Calendar dataFinal) {
 		utilizacaoDAO = new UtilizacaoDAOImpl(entityManager);
-		return utilizacaoDAO.gerarRelatorioJogosMaisUtilizados();
+		return utilizacaoDAO.gerarRelatorioJogosMaisUtilizados(dataInicial,
+				dataFinal);
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas() {
+	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas(
+			Calendar dataInicial, Calendar dataFinal) {
 		utilizacaoDAO = new UtilizacaoDAOImpl(entityManager);
-		return utilizacaoDAO.gerarRelatorioPlataformasMaisUtilizadas();
+		return utilizacaoDAO.gerarRelatorioPlataformasMaisUtilizadas(
+				dataInicial, dataFinal);
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao() {
+	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao(
+			Calendar dataInicial, Calendar dataFinal) {
 		utilizacaoDAO = new UtilizacaoDAOImpl(entityManager);
-		return utilizacaoDAO.gerarRelatorioRankingUtilizacao();
+		List<RelatorioPerfilClientela> listaRelatorioPerfilClientela = utilizacaoDAO
+				.gerarRelatorioRankingUtilizacao(dataInicial, dataFinal);
+		return listaRelatorioPerfilClientela;
 	}
 
 	@Override
@@ -104,40 +111,38 @@ public class UtilizacaoServiceImpl implements UtilizacaoService {
 		List<RelatorioPerfilClientela> listaRelatorioPerfilClientela = new ArrayList<RelatorioPerfilClientela>();
 		RelatorioPerfilClientela relatorioPerfilClientela;
 
-		Integer mesInicio = dataInicio.get(Calendar.MONTH) + 1;
-		Integer mesFim = dataFinal.get(Calendar.MONTH) + 1;
+		dataInicio.set(Calendar.DAY_OF_MONTH, 1);
+		dataFinal.set(Calendar.DAY_OF_MONTH, 2);
 
-		// Verifica se mes inicio e mes fim são o mesmo
-		if (mesInicio.equals(mesFim)) {
+
+		while (dataInicio.before(dataFinal)) {
+
+			// Busca faturamento novos clientes
 			relatorioPerfilClientela = utilizacaoDAO
-					.gerarRelatorioFaturamentoComparativoClienteNovo(mesInicio);
-			if (relatorioPerfilClientela.equals(null)) {
+					.gerarRelatorioFaturamentoComparativoClienteNovo(dataInicio);
+			// verifica se faturamento veio null
+			if (relatorioPerfilClientela == null) {
 				relatorioPerfilClientela = new RelatorioPerfilClientela();
 				relatorioPerfilClientela.setFaturamentoNovosClientes((float) 0);
 			}
-			relatorioPerfilClientela.setMes(mesInicio);
-			relatorioPerfilClientela
-					.setFaturamentoAntigosClientes(utilizacaoDAO
-							.gerarRelatorioFaturamentoComparativoClienteAntigo(
-									mesInicio).getFaturamentoAntigosClientes());
-			listaRelatorioPerfilClientela.add(relatorioPerfilClientela);
-
-			return listaRelatorioPerfilClientela;
-		} else {
-			for (int i = mesInicio; i < mesFim; i++) {
-				relatorioPerfilClientela = new RelatorioPerfilClientela();
-				relatorioPerfilClientela = utilizacaoDAO
-						.gerarRelatorioFaturamentoComparativoClienteNovo(i);
-				relatorioPerfilClientela.setMes(i);
-				relatorioPerfilClientela
-						.setFaturamentoAntigosClientes(utilizacaoDAO
-								.gerarRelatorioFaturamentoComparativoClienteAntigo(
-										i).getFaturamentoAntigosClientes());
-				listaRelatorioPerfilClientela.add(relatorioPerfilClientela);
+			// Busca faturamento velhos clientes
+			Float faturamentoClienteAntigo = utilizacaoDAO
+					.gerarRelatorioFaturamentoComparativoClienteAntigo(
+							dataInicio).getFaturamentoAntigosClientes();
+			// Verifica se faturamento veio nulo
+			if (faturamentoClienteAntigo == null) {
+				faturamentoClienteAntigo = new Float(0);
 			}
-			return listaRelatorioPerfilClientela;
+			relatorioPerfilClientela
+					.setFaturamentoAntigosClientes(faturamentoClienteAntigo);
+
+			relatorioPerfilClientela.setMes(new Integer(dataInicio.get(Calendar.MONTH)+1));
+			listaRelatorioPerfilClientela.add(relatorioPerfilClientela);
+			dataInicio.add(Calendar.MONTH, 1);
 		}
 
+		return listaRelatorioPerfilClientela;
+		
 	}
 
 	@Override

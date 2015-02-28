@@ -5,24 +5,22 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import br.com.cliente_crud.entity.Usuario;
-
+import br.com.cliente_crud.entity.Historico;
 
 @Local
-public interface UsuarioService {
-	
+public interface HistoricoService {
 	/**
 	 * Inclui a entidade
 	 * @param to
 	 * @throws SQLException 
 	 */
-	public void incluir(Usuario to) throws SQLException;
+	public void incluir(Historico to) throws SQLException;
 	
 	/**
 	 * Exclui a entidade
 	 * @param to
 	 */
-	public void excluir(Usuario to);
+	public void excluir(Historico to);
 	
 	/**
 	 * Consulta a entidade
@@ -30,25 +28,18 @@ public interface UsuarioService {
 	 * @param pk
 	 * @return
 	 */
-	public Usuario consultar(Class<Usuario> classe, Integer pk);
+	public Historico consultar(Class<Historico> classe, Integer pk);
 	
 	/**
 	 * Lista as entidades
 	 * @param classe
 	 * @return
 	 */
-	public List<Usuario> listar(Class<Usuario> classe);
+	public List<Historico> listar(Class<Historico> classe);
 	
 	/**
 	 * Atualiza as entidades
 	 * @param to
 	 */
-	public void atualizar(Usuario to) throws SQLException;
-	
-	/**
-	 * @param login
-	 * @param senha
-	 * @return
-	 */
-	public Usuario consultarUsuario(String login, String senha);
+	public void atualizar(Historico to) throws SQLException;
 }

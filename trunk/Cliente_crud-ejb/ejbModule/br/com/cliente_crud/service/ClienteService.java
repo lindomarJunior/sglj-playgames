@@ -48,5 +48,5 @@ public interface ClienteService {
 	 * @param cpf
 	 * @return
 	 */
-	public Cliente consultarCliente(Long cpf);
+	public Cliente consultarCliente(String cpf);
 }

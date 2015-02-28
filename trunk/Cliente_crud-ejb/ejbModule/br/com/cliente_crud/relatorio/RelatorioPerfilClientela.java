@@ -32,9 +32,9 @@ public class RelatorioPerfilClientela {
 		this.tempo = tempo;
 	}
 	
-	public RelatorioPerfilClientela(String cliente, Long tempo, Number valorGasto) {
+	public RelatorioPerfilClientela(String cliente, Number tempo, Number valorGasto) {
 		this.cliente = cliente;
-		this.tempo = tempo;
+		this.tempo = new Long(tempo.toString());
 		this.valorGasto = new Float(valorGasto.toString());
 	}
 	
