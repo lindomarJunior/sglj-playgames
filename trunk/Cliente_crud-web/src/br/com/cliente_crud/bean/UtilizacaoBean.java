@@ -2,6 +2,7 @@ package br.com.cliente_crud.bean;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -80,6 +81,7 @@ public class UtilizacaoBean implements Serializable {
 	private Jogo jogoAtual;
 	private Long tempoAdicional;
 	private Long tempoRestante;
+	private Float valorUtilizacao;
 
 	// ///////////////////////////////////////////////////////////////////////////
 
@@ -116,6 +118,7 @@ public class UtilizacaoBean implements Serializable {
 		getUtilizacao().setStatusEspera(ativado);
 		utilizacaoService.incluir(getUtilizacao());
 		listarUtilizacaoEspera();
+		limparObjeto();
 	}
 
 	/**
@@ -157,6 +160,7 @@ public class UtilizacaoBean implements Serializable {
 	 */
 	public void cancelarUtilizacao() {
 		utilizacaoService.excluir(getUtilizacao());
+		cancelarOperacao();
 	}
 
 	/**
@@ -183,15 +187,19 @@ public class UtilizacaoBean implements Serializable {
 	 * 
 	 */
 	public void pausarUtilizacao() throws SQLException {
-
-		// gravando pausa
-		getPausa().setHoraPausa(Calendar.getInstance());
-		getPausa().setUtilizacao(
-				utilizacaoService.consultar(
-						(Class<Utilizacao>) utilizacao.getClass(),
-						utilizacao.getId()));
-		pausaService.atualizar(getPausa());
-
+		
+		//verifica se utilização já está pausada
+		if (getUtilizacao().getStop() == null
+				|| getUtilizacao().getStop() == false) {
+			// gravando pausa
+			getUtilizacao().setStop(true);
+			getPausa().setHoraPausa(Calendar.getInstance());
+			getPausa().setUtilizacao(
+					utilizacaoService.consultar(
+							(Class<Utilizacao>) utilizacao.getClass(),
+							utilizacao.getId()));
+			pausaService.atualizar(getPausa());
+		}
 		// calcula tempo utilizado
 		getUtilizacao().setQtdTempoUtilizado(
 				calcularTempoUtilizado(getUtilizacao()));
@@ -245,16 +253,13 @@ public class UtilizacaoBean implements Serializable {
 		}
 
 		// atualiza tabela pausa
-		Utilizacao utilizacaoPausa = utilizacaoService.consultar(
-				(Class<Utilizacao>) utilizacao.getClass(), utilizacao.getId());
+		Pausa pausa = pausaService.listarPausaPorUtilizacao(utilizacao.getId());
 
-		for (Pausa pausa : utilizacaoPausa.getPausas()) {
-			if (pausa != null && pausa.getHoraRetorno() == null) {
-				pausa.setHoraRetorno(Calendar.getInstance());
-				pausaService.atualizar(pausa);
-				break;
-			}
-		}
+		if (pausa != null && pausa.getHoraRetorno() == null) {
+			pausa.setHoraRetorno(Calendar.getInstance());
+			pausaService.atualizar(pausa);
+		}		
+		getUtilizacao().setStop(false);
 
 	}
 
@@ -282,6 +287,8 @@ public class UtilizacaoBean implements Serializable {
 		getUtilizacao().setHoraTermino(horaTermino);
 		getUtilizacao().setStatusAtivo(desativado);
 		utilizacaoService.atualizar(getUtilizacao());
+		
+		limparObjeto();
 	}
 
 	/**
@@ -301,6 +308,14 @@ public class UtilizacaoBean implements Serializable {
 
 		// cacula tempo que falta apartir do banco de dados
 		for (Utilizacao utilizacao : getListaUtilizacaoAndamento()) {
+
+			// verifica quem está pausado
+			Pausa pausa = pausaService.listarPausaPorUtilizacao(utilizacao
+					.getId());
+			utilizacao.setStop(false);						
+			if (pausa != null && pausa.getHoraRetorno() == null) {
+				utilizacao.setStop(true);
+			}			
 			utilizacao.setTempoRestante(calcularTempoRestante(utilizacao));
 		}
 	}
@@ -311,21 +326,29 @@ public class UtilizacaoBean implements Serializable {
 	 */
 	private Long calcularTempoRestante(Utilizacao utilizacao) {
 		Calendar tempoAtual = Calendar.getInstance();
-		
+
 		Calendar tempoFinal = (Calendar) utilizacao.getHoraInicio().clone();
-		
-		Integer tempoSolicitado = Integer.valueOf(utilizacao.getQtdTempoSolicitado().toString());
-		
+
+		Integer tempoSolicitado = Integer.valueOf(utilizacao
+				.getQtdTempoSolicitado().toString());
+
 		tempoFinal.add(Calendar.SECOND, tempoSolicitado);
+
+		Long tempoRestante = (long) UtilData.diferencaEmSegundos(
+				tempoAtual.getTime(), tempoFinal.getTime());
 		
-		Long tempoRestante = (long) UtilData.diferencaEmSegundos(tempoAtual.getTime(), tempoFinal.getTime());
-		
-		if(tempoRestante < 1){
-			return new Long(1);
-		}else{
+		tempoRestante = tempoRestante + calcularTempoPausado(utilizacao);
+
+		if (tempoRestante < 1) {
+			if (utilizacao.getTempoRestante() != null) {
+				return new Long(0);
+			} else {
+				return new Long(1);
+			}
+		} else {
 			return tempoRestante;
 		}
-			
+
 	}
 
 	/**
@@ -334,16 +357,88 @@ public class UtilizacaoBean implements Serializable {
 	 */
 	private Long calcularTempoUtilizado(Utilizacao utilizacao) {
 		Long tempoSolicitado = utilizacao.getQtdTempoSolicitado();
-		Long tempoRestante = utilizacao.getTempoRestante();
+		Long tempoRestante = calcularTempoRestante(utilizacao);
 
 		if (tempoRestante < 0) {
 			return tempoSolicitado;
 		} else if (tempoRestante == 0) {
-			return tempoRestante;
+			return tempoSolicitado;
 		}
 
 		Long tempoUtilizado = tempoSolicitado - tempoRestante;
 		return tempoUtilizado;
+	}
+	
+	private Long calcularTempoPausado(Utilizacao utilizacao){
+		Long tempoTotal = new Long(0);
+		Long tempoPausa = new Long(0);
+		
+		List<Pausa> listaPausa = pausaService.listarTodasPausaPorUtilizacao(utilizacao.getId());
+		
+		if (listaPausa != null) {
+			for (Pausa pausa : listaPausa) {
+
+				if (pausa.getHoraRetorno() == null) {
+					tempoPausa = (long) UtilData.diferencaEmSegundos(pausa
+							.getHoraPausa().getTime(), Calendar.getInstance()
+							.getTime());
+				} else {
+					tempoPausa = (long) UtilData.diferencaEmSegundos(pausa
+							.getHoraPausa().getTime(), pausa.getHoraRetorno()
+							.getTime());
+				}
+
+				tempoTotal = tempoTotal + tempoPausa;
+			}
+		}
+		return tempoTotal;
+	}
+	
+	/**
+	 * 
+	 */
+	public void calcularValorTempo(){
+		Long qtdTempo = getUtilizacao().getQtdTempoSolicitado();
+		Float valorHora = new Float(0);
+		
+		for (Plataforma plataforma : getListaPlataforma()) {
+			if(plataforma.getId().equals(getPlataforma().getId())){
+				valorHora = plataforma.getValorHora();
+				break;
+			}
+		}
+		
+		Float total = (qtdTempo * valorHora) / 3600;
+		 
+		setValorUtilizacao(total);
+	}
+	
+	/**
+	 * 
+	 */
+	public void calcularTempoPeloValor(){
+		Float valorUtilizacao = getValorUtilizacao();
+		Float valorHora = new Float(0);
+		
+		for (Plataforma plataforma : getListaPlataforma()) {
+			if(plataforma.getId().equals(getPlataforma().getId())){
+				valorHora = plataforma.getValorHora();
+				break;
+			}
+		}
+		
+		Long valorUtilizacaoLong = obterCentavos(valorUtilizacao);
+		Long valorHoraLong = obterCentavos(valorHora);
+				
+		getUtilizacao().setQtdTempoSolicitado((long) ((valorUtilizacaoLong * 3600) / valorHoraLong));
+	}
+	
+	private Long obterCentavos(Float valor){		
+		String valorString = valor.toString();
+		String s[] = valorString.split("\\."); 
+		Long centavos = new Long(s[1]); 		
+		centavos = centavos + (valor.intValue() * 100);
+		return centavos;
 	}
 
 	/**
@@ -382,6 +477,20 @@ public class UtilizacaoBean implements Serializable {
 	public void listarVideogameDisponivel() {
 		setListaVideogameDisponiveis(videogameService
 				.listarVideogamesDisponiveis());
+	}
+
+	/**
+	 * 
+	 */
+	private void limparObjeto() {
+		setUtilizacao(new Utilizacao());
+		setCliente(new Cliente());
+		setVideogame(new Videogame());
+		setJogo(new Jogo());
+	}
+
+	public void cancelarOperacao() {
+		limparObjeto();
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////
@@ -513,5 +622,13 @@ public class UtilizacaoBean implements Serializable {
 
 	public void setPausa(Pausa pausa) {
 		this.pausa = pausa;
+	}
+
+	public Float getValorUtilizacao() {
+		return valorUtilizacao;
+	}
+
+	public void setValorUtilizacao(Float valorUtilizacao) {
+		this.valorUtilizacao = valorUtilizacao;
 	}
 }

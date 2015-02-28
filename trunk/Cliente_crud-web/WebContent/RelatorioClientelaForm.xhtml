@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<style>
+.posicao_botao {
+	width: 51%;
+}
+
+.botao {
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+.tableConsulta tr:nth-child(even) {
+	background-color: #cacaca;
+}
+
+.tableConsulta {
+	border: 1px solid #cacaca;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+</style>
+
+	<style>
+.ui-layout-north {
+	z-index: 20 !important;
+	overflow: visible !important;
+}
+
+.ui-layout-north .ui-layout-unit-content {
+	overflow: visible !important;
+}
+</style>
+
+<script>
+function submeter(){
+	window.location.href="RelatorioClientela.jsf";
+}
+</script>
+
+</h:head>
+<body bgcolor="#E8E8E8">
+
+
+	<h:form id="form_3">
+		<p:growl id="messages" />
+
+		<p:layout fullPage="true">
+
+			<p:layoutUnit position="north" size="130" style="background-color:#E8E8E8">
+				<div style="font-size:40px; background-color:#E8E8E8">Play Games</div>
+		<div style="background-color:#E8E8E8">Sistema Gerenciador</div>
+				<p:menubar>
+					<p:submenu label="Relatórios">
+						<p:menuitem value="Perfil Clientela" />
+					</p:submenu>
+				</p:menubar>
+			</p:layoutUnit>
+
+			<p:layoutUnit position="center" header="Perfil da Clientela">
+				<p:panel id="painelForm" widgetVar="painelForm" visible="true"
+					closable="true" closeSpeed="0" style="border: none">
+					<p:panel style="width: 50%;">
+						<table>
+							<tr>
+								<td><h:outputLabel value="Data Inicial: " /></td>
+								<td><p:calendar size="10" mask="99/99/9999" value="#{relatorioBean.dataInicial}"
+										pattern="dd/MM/yyyy" locale="pt" showOn="button" /></td>
+							</tr>
+							<tr>
+								<td><h:outputLabel value="Data Final: " /></td>
+								<td><p:calendar size="10" mask="99/99/9999" value="#{relatorioBean.dataFinal}"
+										pattern="dd/MM/yyyy" locale="pt" showOn="button" /></td>
+							</tr>
+						</table>
+					</p:panel>
+
+					<div class="posicao_botao" align="right">
+						<p:commandButton value="Voltar" type="button" />
+						<p:commandButton value="Enviar" id="botao"
+							action="#{relatorioBean.init}" oncomplete="submeter()"
+							/>
+					</div>
+				</p:panel>
+			</p:layoutUnit>
+
+		</p:layout>
+
+
+
+
+	</h:form>
+</body>
+</html>

@@ -15,7 +15,6 @@
 .posicao_botao {
 	width: 51%;
 }
-
 .botao {
 	margin-top: 5px;
 	margin-left: 5px;
@@ -97,7 +96,7 @@
 	<h:form id="form_incluirUtilizacao">
 		<!-- tela incluir utilização -->
 		<p:dialog id="dialogIncluirUtilizacao"
-			widgetVar="dialogIncluirUtilizacao" modal="true">
+			widgetVar="dialogIncluirUtilizacao" modal="true" closable="false">
 			<table border="0">
 				<tr>
 					<td><b>Nome:</b></td>
@@ -143,16 +142,26 @@
 								<tr>
 									<td><b>Tempo:</b></td>
 									<td>
-											<p:inputMask value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" 
-											mask="99:99" converter="tempoConverter" style="width:50px;"/>
+											<p:inputMask id="dialogIncluirUtilizacao_tempo" value="#{utilizacaoBean.utilizacao.qtdTempoSolicitado}" 
+											mask="99:99" converter="tempoConverter" style="width:50px;">
+												<p:ajax event="blur" listener="#{utilizacaoBean.calcularValorTempo}" update="dialogIncluirUtilizacao_valor" />
+											</p:inputMask>
 											</td>
 								</tr>
 								<tr>
 									<td><b>Valor: R$</b></td>
-									<td><p:inputText style="width:50px;" /></td>
+									<td>
+										<p:inputMask id="dialogIncluirUtilizacao_valor" value="#{utilizacaoBean.valorUtilizacao}"
+										 style="width:50px;" converter="valorConverter" mask="99,99" >
+											<p:ajax event="blur" listener="#{utilizacaoBean.calcularTempoPeloValor}" update="dialogIncluirUtilizacao_tempo" />
+										</p:inputMask>
+									</td>
 								</tr>
 							</table>
-						</p:panel><br /> <p:commandButton value="Cancelar" /> <p:commandButton
+						</p:panel>
+						<br /> 
+						<p:commandButton value="Cancelar" action="#{utilizacaoBean.cancelarOperacao}" update="dialogIncluirUtilizacao" /> 
+						<p:commandButton
 							value="Continuar" action="#{utilizacaoBean.continuarInclusao}"
 							update="dialogIncluirUtilizacao, :form_3:dataListEspera" /></td>
 				</tr>
@@ -201,7 +210,10 @@
 									<td></td>
 								</tr>
 							</table>
-						</p:panel><br /> <p:commandButton value="Cancelar" update="dialogVisualizarUtilizacaoEspera" /></td>
+						</p:panel>
+						<br /> 
+						<p:commandButton value="Cancelar" update="dialogVisualizarUtilizacaoEspera" 
+						action="#{utilizacaoBean.cancelarOperacao}" /></td>
 				</tr>
 			</table>
 		</p:dialog>
@@ -250,7 +262,7 @@
 				<tr>
 					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-					<td><br /> <p:commandButton value="Fechar" update=":form_visualizar_util:dialogVisuUtilizacao" /> </td>
+					<td><br /> <p:commandButton value="Fechar" update=":form_visualizar_util:dialogVisuUtilizacao" action="#{utilizacaoBean.cancelarOperacao}" /> </td>
 				</tr>
 			</table>
 		</p:dialog>
@@ -391,9 +403,9 @@
 
 		<p:layout fullPage="true">
 
-			<p:layoutUnit position="north" size="100">
-				<!-- <div style="font-size:40px;">Play Games</div>
-		<div>Sistema Gerenciador</div><br /> -->
+			<p:layoutUnit position="north" size="130" style="background-color:#E8E8E8">
+				<div style="font-size:40px; background-color:#E8E8E8">Play Games</div>
+		<div style="background-color:#E8E8E8">Sistema Gerenciador</div>
 				<p:menubar>
 					<p:menuitem value="Utilização" />
 					<p:submenu label="Cadastros">
@@ -416,12 +428,11 @@
 							update=":panelGroupVideogame"
 							oncomplete="PF('modalVideogame').show();" />
 					</p:submenu>
-					<p:menuitem value="Relatórios" />
 				</p:menubar>
 			</p:layoutUnit>
 			<!--  -->
 
-	<p:layoutUnit position="west"  header="Utilizações" size="800">							
+	<p:layoutUnit position="west"  header="Utilizações" size="700">							
 		<p:dataTable id="dataTableUtilizacao" 
 			widgetVar="dataTableUtilizacao" 
 			value="#{utilizacaoBean.listaUtilizacaoAndamento}" 
@@ -450,7 +461,7 @@
 						<h:outputText value="Tempo" />
 					</f:facet>
 					<pe:timer widgetVar="timer#{utilizacao.id}" timeout="#{utilizacao.tempoRestante}" oncomplete="PF('dialogEncerrarUtilizacao').show();"
-					format="HH:mm:ss" listener="#{utilizacaoBean.terminarUtilizacao(utilizacao)}" update=":form_encerrar_util:dialogEncerrarUtilizacao" />
+					format="HH:mm:ss" listener="#{utilizacaoBean.terminarUtilizacao(utilizacao)}" autoStart="#{utilizacao.stop eq true ? false : true}" update=":form_encerrar_util:dialogEncerrarUtilizacao" />
 				</p:column>
 				<p:column>
 					<p:commandButton value="vizualizar" action="#{utilizacaoBean.visualizarUtilizacao}" 
@@ -476,7 +487,7 @@
 				<p:panel id="incluirUtilizacao" header="Incluir Utilização"
 					style="margin-bottom:20px">
 					<h:outputLabel value="CPF: " />
-					<p:inputText value="#{utilizacaoBean.cliente.cpf}" />
+					<p:inputMask value="#{utilizacaoBean.cliente.cpf}" mask="999.999.999-99" />
 					<br />
 					<br />
 					<div align="right">

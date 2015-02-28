@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<f:event listener="#{clienteBean.listarCliente}" type="preRenderView" />
+
+<h:head>
+
+	<script>
+function gerarGraficoJogos(){
+	window.open("Grafico/GraficosBarrasCliente.jsf","_blank");
+}
+</script>
+
+</h:head>
+<body>
+	<p:layout fullPage="true">
+
+		<p:layoutUnit position="north" size="130"
+			style="background-color:#E8E8E8">
+			<div style="font-size: 40px; background-color: #E8E8E8">Play
+				Games</div>
+			<div style="background-color: #E8E8E8">Sistema Gerenciador</div>
+			<h:form id="form_3">
+				<p:menubar>
+					<p:submenu label="Relatórios">
+						<p:menuitem value="Perfil Cliente" onclick="relatorioCliente()" />
+						<p:menuitem value="Perfil Clientela"
+							onclick="relatorioClientela()" />
+					</p:submenu>
+				</p:menubar>
+			</h:form>
+		</p:layoutUnit>
+
+		<p:layoutUnit position="center" header="Usuários">
+			<p:panel id="painelFormCliente" widgetVar="painelFormCliente"
+				visible="true" closable="true" closeSpeed="0" style="border: none">
+				<!-- Listar Cliente -->
+				<p:panel id="painelListarCliente" widgetVar="painelListarCliente"
+					visible="true" closable="true" closeSpeed="0" style="border: none">
+					<h:form id="formListarCliente">
+						<p:dataTable style="width: 50%;" value="#{clienteBean.clientes}"
+							var="cliente" emptyMessage="" id="tableCli" paginator="true"
+							rows="7"
+							paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="7,14,21">
+
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="CPF" />
+								</f:facet>
+								<h:outputText value="#{cliente.cpf}" />
+							</p:column>
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="Login" />
+								</f:facet>
+								<h:outputText value="#{cliente.login}" />
+							</p:column>
+							<p:column>
+								<p:commandButton value="Visualizar"
+									oncomplete="PF('painelVisualizarCliente').show(); PF('painelFormCliente').close()"
+									action="#{relatorioClienteBean.gerarPerfilCliente}"
+									update=":formVisualizarCliente">
+									<f:setPropertyActionListener
+										target="#{relatorioClienteBean.cliente}" value="#{cliente}"></f:setPropertyActionListener>
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:form>
+				</p:panel>
+			</p:panel>
+
+			<p:panel id="painelVisualizarCliente"
+				widgetVar="painelVisualizarCliente" visible="false" closable="true"
+				closeSpeed="0" style="border: none">
+				<h:form id="formVisualizarCliente">
+
+					<table>
+						<tr valign="top">
+							<td><h:outputText value="Jogos Mais Utilizados" /> <p:panel
+									visible="true" closable="true" closeSpeed="0" style="width:85%">
+									<p:dataTable id="jogosMaisUtil" widgetVar="jogosMaisUtil"
+										var="val"
+										value="#{relatorioClienteBean.relatorioJogosMaisUtilizados}"
+										style="width:100%">
+										<p:column headerText="Jogo">
+											<h:outputText value="#{val.jogo}" />
+										</p:column>
+
+										<p:column headerText="Videogame">
+											<h:outputText value="#{val.plataforma}" />
+										</p:column>
+
+										<p:column headerText="Tempo">
+											<h:outputText value="#{val.tempo}" />
+										</p:column>
+									</p:dataTable>
+									<!-- grafico -->
+									<br />
+									<p:commandButton value="Gerar Relatorio"
+										action="#{relatorioClienteBean.escolherGrafico('jogos')}"
+										oncomplete="gerarGraficoJogos()" />
+
+								</p:panel> <br /> <br /> <h:outputText value="Utilização por Evento" />
+								<p:panel visible="true" closable="true" closeSpeed="0"
+									style="width:85%">
+									<p:dataTable id="utilPorEvento" widgetVar="utilPorEvento"
+										var="val"
+										value="#{relatorioClienteBean.relatorioPlataformasMaisUtilizados}"
+										style="width:100%">
+
+										<p:column headerText="Evento">
+											<h:outputText value="#{val.plataforma}" />
+										</p:column>
+
+										<p:column headerText="Tempo">
+											<h:outputText value="#{val.tempo}" />
+										</p:column>
+									</p:dataTable>
+									<!-- grafico -->
+									<br />
+									<p:commandButton value="Gerar Relatorio"
+										action="#{relatorioClienteBean.escolherGrafico('eventos')}"
+										oncomplete="gerarGraficoJogos()" />
+								</p:panel></td>
+
+							<td><h:outputText value="Jogos Sugeridos" /> <p:panel
+									visible="true" closable="true" closeSpeed="0" style="width:85%">
+									<p:dataTable id="jogoSugerido" widgetVar="jogoSugerido"
+										var="val"
+										value="#{relatorioClienteBean.relatorioSugestaoJogos}"
+										style="width:100%">
+
+										<p:column headerText="Jogo">
+											<h:outputText value="#{val.jogo}" />
+										</p:column>
+
+										<p:column headerText="Plataforma">
+											<h:outputText value="#{val.plataforma}" />
+										</p:column>
+									</p:dataTable>
+								</p:panel></td>
+						</tr>
+					</table>
+
+				</h:form>
+			</p:panel>
+		</p:layoutUnit>
+
+	</p:layout>
+</body>
+</html>

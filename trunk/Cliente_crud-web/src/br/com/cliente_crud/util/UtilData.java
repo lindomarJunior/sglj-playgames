@@ -76,6 +76,10 @@ public class UtilData {
         return result;  
     }
     
+    /**
+     * @param horaCompleta
+     * @return
+     */
     public static Long horasToSegundos(String horaCompleta){  
     	Long resultSegundos = new Long(0);
 
@@ -98,5 +102,18 @@ public class UtilData {
 
     	  //retorno do resultado
     	  return resultSegundos;
+    }
+    
+    /**
+     * @param segundos
+     * @return
+     */
+    public static String segundosToHoras(Long segundos){     
+    	int minutos = segundos.intValue() / 60;   
+    	int minuto = minutos % 60;   
+    	int hora = minutos / 60;   
+    	String hms = String.format ("%02d:%02d", hora, minuto);  
+    	
+    	return hms;
     }
 }

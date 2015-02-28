@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<style>
+.posicao_botao {
+	width: 51%;
+}
+
+.botao {
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+.tableConsulta tr:nth-child(even) {
+	background-color: #cacaca;
+}
+
+.tableConsulta {
+	border: 1px solid #cacaca;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+</style>
+
+	<style>
+.ui-layout-north {
+	z-index: 20 !important;
+	overflow: visible !important;
+}
+
+.ui-layout-north .ui-layout-unit-content {
+	overflow: visible !important;
+}
+</style>
+
+	<script>
+function gerarGraficoJogos(){
+	window.open("Grafico/GraficosBarra.jsf","_blank");
+}
+</script>
+
+</h:head>
+<body bgcolor="#E8E8E8">
+
+
+	<h:form id="form_3">
+		<p:growl id="messages" />
+
+		<p:layout fullPage="true">
+
+			<p:layoutUnit position="north" size="130" style="background-color:#E8E8E8">
+				<div style="font-size:40px; background-color:#E8E8E8">Play Games</div>
+		<div style="background-color:#E8E8E8">Sistema Gerenciador</div>
+				<p:menubar>
+					<p:submenu label="Relatórios">
+						<p:menuitem value="Perfil Clientela" />
+					</p:submenu>
+				</p:menubar>
+			</p:layoutUnit>
+
+			<p:layoutUnit position="center" header="Perfil da Clientela">
+				<p:panel visible="true" closable="true" closeSpeed="0"
+					style="border: none">
+
+					<table>
+						<tr valign="top">
+							<td><h:outputText value="Jogos Mais Utilizados" /> <p:panel
+									visible="true" closable="true" closeSpeed="0" style="width:90%">
+									<p:dataTable id="jogosMaisUtil" widgetVar="jogosMaisUtil"
+										var="val"
+										value="#{relatorioBean.relatorioJogosMaisUtilizados}"
+										style="width:100%">
+										<p:column headerText="Jogo">
+											<h:outputText value="#{val.jogo}" />
+										</p:column>
+
+										<p:column headerText="Videogame">
+											<h:outputText value="#{val.plataforma}" />
+										</p:column>
+
+										<p:column headerText="Tempo">
+											<h:outputText value="#{val.tempo}" converter="tempoConverter" />
+										</p:column>
+									</p:dataTable>
+									<!-- grafico -->
+									<br />
+									<p:commandButton value="Gerar Relatorio"
+										action="#{relatorioBean.escolherGrafico('jogos')}"
+										oncomplete="gerarGraficoJogos()" />
+								</p:panel> <br /> <br /> <h:outputText
+									value="Plataformas Mais Utilizados" /> <p:panel visible="true"
+									closable="true" closeSpeed="0" style="width:90%">
+									<p:dataTable id="plataformasMaisUtil"
+										widgetVar="plataformasMaisUtil" var="val"
+										value="#{relatorioBean.relatorioPlataformasMaisUtilizados}"
+										style="width:100%">
+
+										<p:column headerText="Videogame">
+											<h:outputText value="#{val.plataforma}" />
+										</p:column>
+
+										<p:column headerText="Tempo">
+											<h:outputText value="#{val.tempo}" converter="tempoConverter" />
+										</p:column>
+									</p:dataTable>
+									<!-- grafico -->
+									<br />
+									<p:commandButton value="Gerar Relatorio"
+										action="#{relatorioBean.escolherGrafico('plataformas')}"
+										oncomplete="gerarGraficoJogos()" />
+								</p:panel> <br /> <br /> <h:outputText
+									value="Faturamento Comparativo entre novos clientes e antigos clientes" />
+								<p:panel visible="true" closable="true" closeSpeed="0"
+									style="width:90%">
+									<p:chart type="line" model="#{relatorioBean.lineModel2}"
+										style="height:300px;" />
+								</p:panel></td>
+							<td><h:outputText value="Ranking de Utilizações" /> <p:panel
+									visible="true" closable="true" closeSpeed="0" style="width:90%">
+									<p:dataTable id="rankingUtil" widgetVar="rankingUtil" var="val"
+										value="#{relatorioBean.relatorioRankingUtilizacao}"
+										style="width:100%">
+
+										<p:column headerText="Cliente">
+											<h:outputText value="#{val.cliente}" />
+										</p:column>
+
+										<p:column headerText="Tempo">
+											<h:outputText value="#{val.tempo}" converter="tempoConverter"/>
+										</p:column>
+
+										<p:column headerText="Valor Gasto">
+											<h:outputText value="#{val.valorGasto}" />
+										</p:column>
+									</p:dataTable>
+								</p:panel> <br /> <br /></td>
+						</tr>
+					</table>
+				</p:panel>
+			</p:layoutUnit>
+
+		</p:layout>
+
+
+
+
+	</h:form>
+</body>
+</html>

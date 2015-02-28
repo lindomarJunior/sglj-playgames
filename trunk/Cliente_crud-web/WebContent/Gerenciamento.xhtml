@@ -4,6 +4,9 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
+	
+	<!-- métodos rodados ao carregar página -->
+	<f:event listener="#{usuarioBean.listarUsuario}" type="preRenderView" />
 
 <h:head>
 	<style>
@@ -38,106 +41,118 @@
 }
 </style>
 
+	<script>
+function relatorioClientela(){
+	window.location.href="RelatorioClientelaForm.jsf";
+}
+
+function relatorioCliente(){
+	window.location.href="RelatorioCliente.jsf";
+}
+</script>
 
 </h:head>
 <body bgcolor="#E8E8E8">
 
 
-	<h:form id="form_3">
-		<p:growl id="messages" />
 
-		<p:layout fullPage="true">
+	<p:growl id="messages" />
 
-			<p:layoutUnit position="north" size="100">
+	<p:layout fullPage="true">
+
+		<p:layoutUnit position="north" size="130" style="background-color:#E8E8E8">
+				<div style="font-size:40px; background-color:#E8E8E8">Play Games</div>
+		<div style="background-color:#E8E8E8">Sistema Gerenciador</div>
+			<h:form id="form_3">
 				<p:menubar>
 					<p:submenu label="Relatórios">
+						<p:menuitem value="Perfil Cliente"
+							onclick="relatorioCliente()" />
 						<p:menuitem value="Perfil Clientela"
-							action="#{relatorioBean.gerarPerfilClientela}"
-							update=":form_3:jogosMaisUtil, :form_3:plataformasMaisUtil, :form_3:rankingUtil" />
+							onclick="relatorioClientela()" />
 					</p:submenu>
 				</p:menubar>
-			</p:layoutUnit>
+			</h:form>
+		</p:layoutUnit>
 
-			<p:layoutUnit position="center" header="Perfil da Clientela">
-				<p:panel visible="true" closable="true" closeSpeed="0"
-					style="border: none">
-					<h:outputText value="Jogos Mais Utilizados" />
-					<p:panel visible="true" closable="true" closeSpeed="0"
-						style="width:40%">
-						<p:dataTable id="jogosMaisUtil" widgetVar="jogosMaisUtil"
-							var="val"
-							value="#{relatorioBean.relatorioJogosMaisUtilizados}"
-							style="width:100%">
-							<p:column headerText="Jogo">
-								<h:outputText value="#{val.jogo}" />
+		<p:layoutUnit position="center" header="Usuários">
+			<h:panelGroup id="panelGroupUsuario" layout="block">
+				<!-- Listar Usuario -->
+				<p:panel id="painelListarUsuario" widgetVar="painelListarUsuario"
+					visible="true" closable="true" closeSpeed="0" style="border: none">
+					<h:form id="formListarUsuario">
+						<p:dataTable style="width: 50%;" value="#{usuarioBean.usuarios}"
+							var="usu" emptyMessage="" id="tableUsu" paginator="true" rows="7"
+							paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="7,14,21">
+
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="Nome" />
+								</f:facet>
+								<h:outputText value="#{usu.nome}" />
 							</p:column>
-
-							<p:column headerText="Videogame">
-								<h:outputText value="#{val.plataforma}" />
-							</p:column>
-
-							<p:column headerText="Tempo">
-								<h:outputText value="#{val.tempo}" />
+							<p:column>
+								<p:commandButton value="Consultar Histórico"
+									update=":formConsultarUsuario" action="#{usuarioBean.gerarHistorico}"
+									oncomplete="PF('painelConsultarUsuario').show(); PF('painelListarUsuario').close();">
+									<f:setPropertyActionListener target="#{usuarioBean.usuario}"
+										value="#{usu}"></f:setPropertyActionListener>
+								</p:commandButton>
 							</p:column>
 						</p:dataTable>
-					</p:panel>
-					<br />
-					<br />
-					<h:outputText value="Plataformas Mais Utilizados" />
-					<p:panel visible="true" closable="true" closeSpeed="0"
-						style="width:40%">
-						<p:dataTable id="plataformasMaisUtil" widgetVar="plataformasMaisUtil"
-							var="val"
-							value="#{relatorioBean.relatorioPlataformasMaisUtilizados}"
-							style="width:100%">
-
-							<p:column headerText="Videogame">
-								<h:outputText value="#{val.plataforma}" />
-							</p:column>
-
-							<p:column headerText="Tempo">
-								<h:outputText value="#{val.tempo}" />
-							</p:column>
-						</p:dataTable>
-					</p:panel>
-					<br />
-					<br />
-					<h:outputText value="Ranking de Utilizações" />
-					<p:panel visible="true" closable="true" closeSpeed="0"
-						style="width:40%">
-						<p:dataTable id="rankingUtil" widgetVar="rankingUtil"
-							var="val"
-							value="#{relatorioBean.relatorioRankingUtilizacao}"
-							style="width:100%">
-
-							<p:column headerText="Cliente">
-								<h:outputText value="#{val.cliente}" />
-							</p:column>
-
-							<p:column headerText="Tempo">
-								<h:outputText value="#{val.tempo}" />
-							</p:column>
-							
-							<p:column headerText="Valor Gasto">
-								<h:outputText value="#{val.valorGasto}" />
-							</p:column>
-						</p:dataTable>
-					</p:panel>
-					<br />
-					<br />
-					<h:outputText value="Faturamento Comparativo entre novos clientes e antigos clientes" />
-					<p:panel visible="true" closable="true" closeSpeed="0"
-						style="width:40%">
-						<p:chart type="line" model="#{relatorioBean.lineModel2}" style="height:300px;"/>
-					</p:panel>
+					</h:form>
 				</p:panel>
-			</p:layoutUnit>
 
-		</p:layout>
+				
+				<!-- Consultar Usuario -->
+				<p:panel id="painelConsultarUsuario"
+					widgetVar="painelConsultarUsuario" visible="false" closable="true"
+					closeSpeed="0" style="border: none">
+					<h:form id="formConsultarUsuario">
+						<p:panel style="width: 50%;">
+							<p:dataTable style="width: 100%;" value="#{usuarioBean.listaHistorico}"
+							var="hist" emptyMessage="" id="tableUsu" paginator="true" rows="7"
+							paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="7,14,21">
 
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="Evento" />
+								</f:facet>
+								<h:outputText value="#{hist.evento}" />
+							</p:column>
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="Data" />
+								</f:facet>
+								<h:outputText value="#{hist.data.time}">
+									<f:convertDateTime type="both" pattern="dd/MM/yyyy" />
+								</h:outputText>
+							</p:column>
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="Hora" />
+								</f:facet>
+								<h:outputText value="#{hist.data.time}">
+									<f:convertDateTime type="both" pattern="HH:mm:SS" />
+								</h:outputText>
+							</p:column>
+						</p:dataTable>
 
+						</p:panel>
+						<div class="posicao_botao" align="right">
+							<p:commandButton value="Voltar"
+								onclick="PF('painelConsultarUsuario').close(); PF('painelListarUsuario').show();"
+								type="button" />
+						</div>
+					</h:form>
 
+				</p:panel>
+			</h:panelGroup>
+		</p:layoutUnit>
 
-	</h:form>
+	</p:layout>
+
 </body>
 </html>

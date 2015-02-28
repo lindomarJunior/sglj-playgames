@@ -26,8 +26,7 @@ import br.com.cliente_crud.service.UtilizacaoService;
 
 @RequestScoped
 @Named
-public class RelatorioBean implements Serializable {
-
+public class RelatorioClienteBean implements Serializable {
 	@EJB
 	private UtilizacaoService utilizacaoService;
 	private List<RelatorioPerfilClientela> relatorioJogosMaisUtilizados;
@@ -41,17 +40,14 @@ public class RelatorioBean implements Serializable {
 	private Date dataFinal;
 	private HorizontalBarChartModel graficoJogosMaisUtilizado;
 	private HorizontalBarChartModel graficoPlataformasMaisUtilizado;
+	private HorizontalBarChartModel graficoUtilizacaoPorEvento;
 	private String relatorio;
 
 	@PostConstruct
 	public void init() {
-
-		if (dataInicial != null) {
-			setarDatas();
-		}
-
+		
 		try {
-			gerarPerfilClientela();
+			gerarPerfilCliente();
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -92,6 +88,17 @@ public class RelatorioBean implements Serializable {
 	 * 
 	 */
 	public void gerarPerfilCliente() {
+		
+		if(getCliente() != null){
+			setarCliente();
+		}else{
+			FacesContext context = FacesContext.getCurrentInstance();
+			HttpSession session = (HttpSession) context.getExternalContext()
+					.getSession(false);
+			Cliente clienteRetorno = (Cliente) session.getAttribute("cliente");
+			setCliente(clienteRetorno);
+		}
+		
 		gerarJogosMaisUtilizadosPorCliente();
 		gerarUtilizacaoPorEvento();
 		sugerirJogos();
@@ -128,6 +135,16 @@ public class RelatorioBean implements Serializable {
 		session.setAttribute("dataInicial", dataInicial);
 		session.setAttribute("dataFinal", dataFinal);
 	}
+	
+	/**
+	 * 
+	 */
+	private void setarCliente() {
+		FacesContext fc = FacesContext.getCurrentInstance();
+		HttpSession session = (HttpSession) fc.getExternalContext().getSession(
+				false);
+		session.setAttribute("cliente", getCliente());
+	}
 
 	/**
 	 * @param data
@@ -145,8 +162,8 @@ public class RelatorioBean implements Serializable {
 		if (relatorio != null) {
 			if (relatorio.equals("jogos")) {
 				createGraficoJogosMaisUtilizado();
-			} else if (relatorio.equals("plataformas")) {
-				createGraficoPlataformasMaisUtilizado();
+			} else if (relatorio.equals("eventos")) {
+				createGraficoUtilizacaoPorEvento();
 			}
 		}
 	}
@@ -228,6 +245,26 @@ public class RelatorioBean implements Serializable {
 		xAxis.setLabel("Horas");
 		xAxis.setMin(0);
 		Axis yAxis = graficoJogosMaisUtilizado.getAxis(AxisType.Y);
+		yAxis.setLabel("Jogo");
+	}
+	
+	/**
+	 * 
+	 */
+	private void createGraficoUtilizacaoPorEvento() {
+		graficoUtilizacaoPorEvento = new HorizontalBarChartModel();
+		ChartSeries relatorio = new ChartSeries();
+
+		for (RelatorioPerfilClientela rel : getRelatorioPlataformasMaisUtilizados()) {
+			relatorio.set(rel.getPlataforma(), rel.getTempo());
+		}
+
+		graficoUtilizacaoPorEvento.addSeries(relatorio);
+		graficoUtilizacaoPorEvento.setStacked(true);
+		Axis xAxis = 		graficoUtilizacaoPorEvento.getAxis(AxisType.X);
+		xAxis.setLabel("Horas");
+		xAxis.setMin(0);
+		Axis yAxis = 		graficoUtilizacaoPorEvento.getAxis(AxisType.Y);
 		yAxis.setLabel("Jogo");
 	}
 
@@ -355,12 +392,16 @@ public class RelatorioBean implements Serializable {
 		return graficoPlataformasMaisUtilizado;
 	}
 
+	public HorizontalBarChartModel getGraficoUtilizacaoPorEvento() {
+		return graficoUtilizacaoPorEvento;
+	}
+
 	public HorizontalBarChartModel getGraficoBarras() {
 
 		if (relatorio.equals("jogos")) {
 			return graficoJogosMaisUtilizado;
-		} else if (relatorio.equals("plataformas")) {
-			return graficoPlataformasMaisUtilizado;
+		} else if (relatorio.equals("eventos")) {
+			return graficoUtilizacaoPorEvento;
 		}
 
 		return null;
@@ -381,5 +422,4 @@ public class RelatorioBean implements Serializable {
 	public void setDataFinal(Date dataFinal) {
 		this.dataFinal = dataFinal;
 	}
-
 }
