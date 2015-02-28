@@ -33,8 +33,8 @@ public class Util implements Converter {
 	}
 
 	@Override
-	public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object objeto) {
-		return objeto.toString();
+	public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object objeto) {		
+		return UtilData.segundosToHoras((Long) objeto);
 	}
 
 }

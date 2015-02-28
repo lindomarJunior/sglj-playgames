@@ -60,12 +60,6 @@
 								icon="ui-icon-alert" />
 						</p:commandButton>
 					</p:column>
-					<p:column>
-						<p:commandButton value="Visualizar" action="#{relatorioBean.gerarPerfilCliente}" update=":formVisualizarCliente">
-							<f:setPropertyActionListener target="#{relatorioBean.cliente}"
-								value="#{cliente}"></f:setPropertyActionListener>
-						</p:commandButton>
-					</p:column>
 				</p:dataTable>
 			</h:form>
 		</p:panel>
@@ -103,8 +97,8 @@
 						</tr>
 						<tr>
 							<td><h:outputLabel value="CPF: " /></td>
-							<td><p:inputText id="cpfCliIncl"
-									value="#{clienteBean.cliente.cpf}" label="cpf" /></td>
+							<td><p:inputMask id="cpfCliIncl"
+									value="#{clienteBean.cliente.cpf}" label="cpf" mask="999.999.999-99" /></td>
 						</tr>
 						<tr>
 							<td><h:outputLabel value="Telefone: " /></td>
@@ -348,66 +342,6 @@
 				</div>
 			</h:form>
 		</p:panel>
-		<h:form id="formVisualizarCliente">
-			<h:outputText value="Jogos Mais Utilizados" />
-			<p:panel visible="true" closable="true" closeSpeed="0"
-				style="width:40%">
-				<p:dataTable id="jogosMaisUtil" widgetVar="jogosMaisUtil"
-					var="val"
-					value="#{relatorioBean.relatorioJogosMaisUtilizados}"
-					style="width:100%">
-					<p:column headerText="Jogo">
-						<h:outputText value="#{val.jogo}" />
-					</p:column>
-
-					<p:column headerText="Videogame">
-						<h:outputText value="#{val.plataforma}" />
-					</p:column>
-
-					<p:column headerText="Tempo">
-						<h:outputText value="#{val.tempo}"/>
-					</p:column>
-				</p:dataTable>
-			</p:panel>
-			<br />
-			<br />
-			<h:outputText value="Utilização por Evento" />
-			<p:panel visible="true" closable="true" closeSpeed="0"
-				style="width:40%">
-				<p:dataTable id="utilPorEvento" widgetVar="utilPorEvento"
-					var="val"
-					value="#{relatorioBean.relatorioPlataformasMaisUtilizados}"
-					style="width:100%">
-
-					<p:column headerText="Videogame">
-						<h:outputText value="#{val.plataforma}" />
-					</p:column>
-
-					<p:column headerText="Tempo">
-						<h:outputText value="#{val.tempo}" />
-					</p:column>
-				</p:dataTable>
-			</p:panel>
-			<br />
-			<br />
-			<h:outputText value="Jogos Sugeridos" />
-			<p:panel visible="true" closable="true" closeSpeed="0"
-				style="width:40%">
-				<p:dataTable id="jogoSugerido" widgetVar="jogoSugerido"
-					var="val"
-					value="#{relatorioBean.relatorioSugestaoJogos}"
-					style="width:100%">
-
-					<p:column headerText="Jogo">
-						<h:outputText value="#{val.jogo}" />
-					</p:column>
-
-					<p:column headerText="Plataforma">
-						<h:outputText value="#{val.plataforma}" />
-					</p:column>
-				</p:dataTable>
-			</p:panel>
-		</h:form>
 	</h:panelGroup>
 </body>
 </html>
