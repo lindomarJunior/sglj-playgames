@@ -3,9 +3,18 @@ package br.com.cliente_crud.entity;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.persistence.*;
-
-import org.hibernate.annotations.IndexColumn;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "utilizacao")
@@ -42,6 +51,9 @@ public class Utilizacao {
 	
 	@Transient
 	private Long tempoRestante;
+	
+	@Transient
+	private Boolean stop;
 
 	@ManyToOne
 	@JoinColumn(name = "ID_EVENTO", referencedColumnName = "ID_EVENTO")
@@ -58,10 +70,6 @@ public class Utilizacao {
 	@ManyToOne
 	@JoinColumn(name = "ID_USUARIO", referencedColumnName = "ID_USUARIO")
 	private Usuario usuario;
-	
-	@OneToMany(mappedBy="utilizacao", fetch=FetchType.EAGER)
-	@IndexColumn(name="ID_PAUSA")
-	private List<Pausa> pausas;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "UTILIZACAO_JOGO", joinColumns = { @JoinColumn(name = "ID_UTILIZACAO", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "ID_JOGO", nullable = false, updatable = true) })
@@ -188,11 +196,11 @@ public class Utilizacao {
 		this.tempoRestante = tempoRestante;
 	}
 
-	public List<Pausa> getPausas() {
-		return pausas;
+	public Boolean getStop() {
+		return stop;
 	}
 
-	public void setPausas(List<Pausa> pausas) {
-		this.pausas = pausas;
+	public void setStop(Boolean stop) {
+		this.stop = stop;
 	}
 }

@@ -33,29 +33,29 @@ public interface UtilizacaoDAO {
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados();
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados(Calendar dataInicial, Calendar dataFinal);
 
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas();
+	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas(Calendar dataInicial, Calendar dataFinal);
 
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao();
+	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao(Calendar dataInicial, Calendar dataFinal);
 
 	/**
 	 * @return
 	 */
 	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteNovo(
-			Integer data);
+			Calendar dataParam);
 
 	/**
 	 * @return
 	 */
 	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteAntigo(
-			Integer mes);
+			Calendar dataParam);
 
 	/**
 	 * @return

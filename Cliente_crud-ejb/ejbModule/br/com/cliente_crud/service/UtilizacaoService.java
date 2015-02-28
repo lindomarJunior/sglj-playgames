@@ -70,17 +70,17 @@ public interface UtilizacaoService {
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados();
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados(Calendar dataInicial, Calendar dataFinal);
 	
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas();
+	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas(Calendar dataInicial, Calendar dataFinal);
 	
 	/**
 	 * @return
 	 */
-	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao();
+	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao(Calendar dataInicial, Calendar dataFinal);
 	
 	/**
 	 * @return

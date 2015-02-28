@@ -1,5 +1,6 @@
 package br.com.cliente_crud.dao.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,42 +46,65 @@ public class UtilizacaoDAOImpl implements UtilizacaoDAO {
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados() {
+	public List<RelatorioPerfilClientela> gerarRelatorioJogosMaisUtilizados(
+			Calendar dataInicial, Calendar dataFinal) {
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilClientela(jogo.titulo, jogo.plataforma.nome, SUM(utilizacao_jogo.qtdTempoUtilizacao)) "
-				+ "FROM UtilizacaoJogo as utilizacao_jogo, Jogo as jogo "
-				+ "WHERE jogo.id = utilizacao_jogo.idJogo "
-				+ "GROUP by jogo.titulo, jogo.plataforma.nome";
+				+ "FROM UtilizacaoJogo as utilizacao_jogo, Jogo as jogo, Utilizacao as utilizacao "
+				+ "WHERE jogo.id = utilizacao_jogo.idJogo AND utilizacao.id = utilizacao_jogo.idUtilizacao "
+				+ "AND utilizacao.horaTermino BETWEEN :dataInicial AND :dataFinal "
+				+ "GROUP by jogo.titulo, jogo.plataforma.nome "
+				+ "ORDER BY SUM(utilizacao_jogo.qtdTempoUtilizacao) DESC LIMIT 10";
 		Query query = entityManager.createQuery(hql);
+		query.setParameter("dataInicial", dataInicial);
+		query.setParameter("dataFinal", dataFinal);
 		return (List<RelatorioPerfilClientela>) query.getResultList();
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas() {
+	public List<RelatorioPerfilClientela> gerarRelatorioPlataformasMaisUtilizadas(
+			Calendar dataInicial, Calendar dataFinal) {
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilClientela(util.videogame.plataforma.nome, SUM(util.qtdTempoUtilizado)) "
 				+ "FROM Utilizacao as util "
-				+ "GROUP BY util.videogame.plataforma.nome";
+				+ "WHERE util.horaTermino BETWEEN :dataInicial AND :dataFinal "
+				+ "GROUP BY util.videogame.plataforma.nome "
+				+ "ORDER BY SUM(util.qtdTempoUtilizado) DESC LIMIT 10";
 		Query query = entityManager.createQuery(hql);
+		query.setParameter("dataInicial", dataInicial);
+		query.setParameter("dataFinal", dataFinal);
 		return (List<RelatorioPerfilClientela>) query.getResultList();
 	}
 
 	@Override
-	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao() {
+	public List<RelatorioPerfilClientela> gerarRelatorioRankingUtilizacao(
+			Calendar dataInicial, Calendar dataFinal) {
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilClientela(utilizacao.cliente.nome, SUM(utilizacao.qtdTempoUtilizado), SUM(utilizacao.valor)) "
 				+ "FROM Utilizacao as utilizacao "
+				+ "WHERE utilizacao.valor is not null "
+				+ "AND utilizacao.horaTermino BETWEEN :dataInicial AND :dataFinal "
 				+ "GROUP BY utilizacao.cliente.nome";
 		Query query = entityManager.createQuery(hql);
+		query.setParameter("dataInicial", dataInicial);
+		query.setParameter("dataFinal", dataFinal);
 		return (List<RelatorioPerfilClientela>) query.getResultList();
 	}
 
 	@Override
-	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteNovo(
-			Integer mes) {
+	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteNovo(Calendar dataParam) {
+		Calendar data = Calendar.getInstance();
+		data.setTime(dataParam.getTime());
+		data.set(Calendar.DAY_OF_MONTH, 1);
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		String dataInicial = format1.format(data.getTime());
+		data.add(Calendar.MONTH, 1);
+		String dataFinal = format1.format(data.getTime());
+		
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilClientela(SUM(utilizacao.valor)) "
 				+ "FROM Utilizacao as utilizacao "
-				+ "WHERE MONTH(utilizacao.horaInicio) = :mes AND MONTH(utilizacao.cliente.dataRegistro) = :mes";
+				+ "WHERE utilizacao.horaInicio Between str_to_date(:dataInicial,'%Y-%m-%d') AND str_to_date(:dataFinal,'%Y-%m-%d') "
+				+ "AND utilizacao.cliente.dataRegistro Between str_to_date(:dataInicial,'%Y-%m-%d') AND str_to_date(:dataFinal,'%Y-%m-%d')";
 		Query query = entityManager.createQuery(hql);
-		query.setParameter("mes", mes);
-
+		query.setParameter("dataInicial", dataInicial);
+		query.setParameter("dataFinal", dataFinal);
 		try {
 			return (RelatorioPerfilClientela) query.getSingleResult();
 		} catch (Exception e) {
@@ -90,14 +114,27 @@ public class UtilizacaoDAOImpl implements UtilizacaoDAO {
 	}
 
 	@Override
-	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteAntigo(
-			Integer mes) {
+	public RelatorioPerfilClientela gerarRelatorioFaturamentoComparativoClienteAntigo(Calendar dataParam) {
+		Calendar data = Calendar.getInstance();
+		data.setTime(dataParam.getTime());
+		data.set(Calendar.DAY_OF_MONTH, 1);
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		String dataInicial = format1.format(data.getTime());
+		data.add(Calendar.MONTH, 1);
+		String dataFinal = format1.format(data.getTime());
+		
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilClientela(SUM(utilizacao.valor)) "
 				+ "FROM Utilizacao as utilizacao "
-				+ "WHERE MONTH(utilizacao.horaInicio) = :mes AND MONTH(utilizacao.cliente.dataRegistro) < :mes";
+				+ "WHERE utilizacao.horaInicio Between str_to_date(:dataInicial,'%Y-%m-%d') AND str_to_date(:dataFinal,'%Y-%m-%d') "
+				+ "AND utilizacao.cliente.dataRegistro < str_to_date(:dataInicial,'%Y-%m-%d')";
 		Query query = entityManager.createQuery(hql);
-		query.setParameter("mes", mes);
-		return (RelatorioPerfilClientela) query.getSingleResult();
+		query.setParameter("dataInicial", dataInicial);
+		query.setParameter("dataFinal", dataFinal);
+		try {
+			return (RelatorioPerfilClientela) query.getSingleResult();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -170,7 +207,8 @@ public class UtilizacaoDAOImpl implements UtilizacaoDAO {
 	}
 
 	@Override
-	public List<RelatorioPerfilCliente> consultarJogosLançamentos(List<String> listaNomeJogos, Integer faixaEtaria) {
+	public List<RelatorioPerfilCliente> consultarJogosLançamentos(
+			List<String> listaNomeJogos, Integer faixaEtaria) {
 		String hql = "SELECT new br.com.cliente_crud.relatorio.RelatorioPerfilCliente(jogo.titulo, jogo.plataforma.nome) "
 				+ "FROM Jogo as jogo "
 				+ "WHERE jogo.titulo not in(:listaNomeJogos) AND jogo.faixaEtaria <= :faixaEtaria "

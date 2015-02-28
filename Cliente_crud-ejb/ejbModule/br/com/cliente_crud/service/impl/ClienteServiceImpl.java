@@ -7,7 +7,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import br.com.cliente_crud.dao.ClienteDAO;
 import br.com.cliente_crud.dao.impl.ClienteDAOImpl;
 import br.com.cliente_crud.dao.impl.DAOImpl;
 import br.com.cliente_crud.entity.Cliente;
@@ -56,7 +55,7 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 	
 	@Override
-	public Cliente consultarCliente(Long cpf){
+	public Cliente consultarCliente(String cpf){
 		clienteDAO = new ClienteDAOImpl(entityManager);
 		return clienteDAO.consultarCliente(cpf);
 	}

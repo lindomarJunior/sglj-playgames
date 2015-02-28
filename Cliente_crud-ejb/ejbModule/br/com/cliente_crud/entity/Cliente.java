@@ -23,7 +23,7 @@ public class Cliente {
 	private String login;
 	
 	@Column(name="CPF_CLIENTE")
-	private Long cpf;
+	private String cpf;
 	
 	@Column(name="TELEFONE_CLIENTE")
 	private String telefone;
@@ -79,11 +79,11 @@ public class Cliente {
 		this.login = login;
 	}
 
-	public Long getCpf() {
+	public String getCpf() {
 		return cpf;
 	}
 
-	public void setCpf(Long cpf) {
+	public void setCpf(String cpf) {
 		this.cpf = cpf;
 	}
 
