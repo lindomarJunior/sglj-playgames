@@ -286,6 +286,13 @@ public class UtilizacaoBean implements Serializable {
 				calcularTempoUtilizado(getUtilizacao()));
 		getUtilizacao().setHoraTermino(horaTermino);
 		getUtilizacao().setStatusAtivo(desativado);
+		
+		utilizacaoJogo = utilizacaoJogoService.consultarUtilizacaoJogo(
+				jogoAtual.getId(), getUtilizacao().getId());
+		utilizacaoJogo
+				.setQtdTempoUtilizacao(calcularTempoUtilizado(getUtilizacao()));
+		
+		utilizacaoJogoService.atualizar(utilizacaoJogo);
 		utilizacaoService.atualizar(getUtilizacao());
 		
 		limparObjeto();
