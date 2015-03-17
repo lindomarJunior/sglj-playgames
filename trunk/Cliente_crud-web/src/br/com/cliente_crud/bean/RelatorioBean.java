@@ -12,6 +12,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.CategoryAxis;
@@ -158,6 +166,13 @@ public class RelatorioBean implements Serializable {
 			Calendar dataFinal) {
 		setRelatorioJogosMaisUtilizados(utilizacaoService
 				.gerarRelatorioJogosMaisUtilizados(dataInicial, dataFinal));
+		
+		try {
+			gerarRelatorioIreport(getRelatorioJogosMaisUtilizados());
+		} catch (JRException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -291,6 +306,12 @@ public class RelatorioBean implements Serializable {
 		model.addSeries(girls);
 
 		return model;
+	}
+	
+	public void gerarRelatorioIreport(List<RelatorioPerfilClientela> relatorioLista) throws JRException{
+		JasperReport pathjrxml = JasperCompileManager.compileReport("relatorioTeste.jrxml");
+		JasperPrint printReport = JasperFillManager.fillReport(pathjrxml, null, new JRBeanCollectionDataSource(relatorioLista));
+		JasperExportManager.exportReportToPdfFile(printReport, "RelatorioUser.pdf");
 	}
 
 	// /////////////////////////////////////////////////////////////////////

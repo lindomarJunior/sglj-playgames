@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorioTeste" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0eefc2ba-731d-4949-9591-b90f719d3c35">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="jogo" class="java.lang.String"/>
+	<field name="videogame" class="java.lang.String"/>
+	<field name="tempo" class="java.lang.Long"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="11" y="29" width="100" height="20" uuid="2566382f-feec-4523-bec9-6878b0b4a16c"/>
+				<text><![CDATA[jogo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="159" y="29" width="100" height="20" uuid="56ca6dd1-2efb-4baf-9ed1-2a7f0facee76"/>
+				<text><![CDATA[videogame]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="307" y="29" width="100" height="20" uuid="d86b4c6c-a4d9-41c6-9c85-b1b35cf716ed"/>
+				<text><![CDATA[tempo]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="11" y="13" width="100" height="20" uuid="b0a68080-4fc9-4bc1-ab68-ac0cfe2dc99c"/>
+				<textFieldExpression><![CDATA[$F{jogo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="159" y="13" width="100" height="20" uuid="ed7920b0-223f-4bc3-854a-e06fc99b8273"/>
+				<textFieldExpression><![CDATA[$F{videogame}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="307" y="13" width="100" height="20" uuid="9f883dc4-9685-4d0c-aa70-57becd37c7e9"/>
+				<textFieldExpression><![CDATA[$F{tempo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
