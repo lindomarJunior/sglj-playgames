@@ -2,6 +2,7 @@
 
 Sistema Gerenciador de Loja de Jogos
 
-Sistema feita em java para trabalho de conclusão de curso de Análise e desenvolvimento de sistemas.
+Sistema feito em java para trabalho de conclusão de curso de Análise e desenvolvimento de sistemas.
 
-Tecnologias utilizadas: jsf, primefaces, ejb e jpa
+Tecnologias utilizadas: 
+jsf, primefaces, ejb e jpa
